@@ -1,0 +1,15 @@
+# IDE and code editor workspace files
+.vs/
+.vscode/
+.zed/
+.idea/
+
+# Direnv cache
+.direnv/
+
+# .clangd cache files
+.cache/
+
+# Build directories
+build/
+out/
