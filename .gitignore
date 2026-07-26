@@ -13,3 +13,5 @@
 # Build directories
 build/
 out/
+bin/
+obj/
