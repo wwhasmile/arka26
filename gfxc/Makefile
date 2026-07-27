@@ -80,7 +80,7 @@ compile:
 
 obj/%.c.o: %.c
 	@echo $<...
-	@$(CC) $< -c -o $@ $(DEFINES) $(INCLUDE_FLAGS)
+	@$(CC) $< -c -o $@ $(CFLAGS) $(DEFINES) $(INCLUDE_FLAGS)
 -include $(OBJ_FILES:.o=.d)
 
 .PHONY: all
