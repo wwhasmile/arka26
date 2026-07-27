@@ -1,25 +1,22 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
-typedef signed char i8;
-typedef signed short i16;
-typedef signed int i32;
-typedef signed long long i64;
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned int u32;
-typedef unsigned long long u64;
+#include <stdint.h>
+#include <stdbool.h>
+
+typedef int8_t i8;
+typedef int16_t i16;
+typedef int32_t i32;
+typedef int64_t i64;
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
 
 typedef float f32;
 typedef double f64;
 
 #define NULL ((void *)0)
-
-typedef _Bool bool;
-enum Bool {
-	false,
-	true,
-};
 
 #define I8_MIN -128
 #define I8_MAX 127
@@ -39,55 +36,55 @@ enum Bool {
 #define U64_MIN 0
 #define U64_MAX 18446744073709551615
 
-struct RangeI8 {
+typedef struct {
 	i8 min;
 	i8 max;
-};
+} RangeI8;
 
-struct RangeI16 {
+typedef struct {
 	i16 min;
 	i16 max;
-};
+} RangeI16;
 
-struct RangeI32 {
+typedef struct {
 	i32 min;
 	i32 max;
-};
+} RangeI32;
 
-struct RangeI64 {
+typedef struct {
 	i64 min;
 	i64 max;
-};
+} RangeI64;
 
-struct RangeU8 {
+typedef struct RangeU8 {
 	u8 min;
 	u8 max;
-};
+} RangeU8;
 
-struct RangeU16 {
+typedef struct {
 	u16 min;
 	u16 max;
-};
+} RangeU16;
 
-struct RangeU32 {
+typedef struct {
 	u32 min;
 	u32 max;
-};
+} RangeU32;
 
-struct RangeU64 {
+typedef struct {
 	u64 min;
 	u64 max;
-};
+} RangeU64;
 
-struct RangeF32 {
+typedef struct {
 	f32 min;
 	f32 max;
-};
+} RangeF32;
 
-struct RangeF64 {
+typedef struct {
 	f64 min;
 	f64 max;
-};
+} RangeF64;
 
 #define ARRAY_LENGTH(arr) (sizeof((arr)) / (sizeof((arr[0]))))
 
