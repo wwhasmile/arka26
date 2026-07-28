@@ -37,4 +37,6 @@ typedef struct {
 	const char *lexeme;
 } LexerToken;
 
+void Lexer_Initialize(Lexer *lexer, const char *src);
+
 #endif // LEXER_H
