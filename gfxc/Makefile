@@ -45,8 +45,8 @@ flags-release: link compile
 
 flags-debug: DEFINES += -DGFXC_DEBUG
 flags-debug: CFLAGS += -MD -O0 -g3 -fno-omit-frame-pointer
-flags-debug: LDFLAGS += -g3 -fsanitize=address -fsanitize=undefined -fsannitize=thread
-flags-release: link compile
+flags-debug: LDFLAGS += -g3
+flags-debug: link compile
 
 .NOTPARALLEL: scaffold
 scaffold: scaffold-$(PLATFORM)
@@ -82,6 +82,3 @@ obj/%.c.o: %.c
 	@echo $<...
 	@$(CC) $< -c -o $@ $(CFLAGS) $(DEFINES) $(INCLUDE_FLAGS)
 -include $(OBJ_FILES:.o=.d)
-
-.PHONY: all
-all: build-debug
