@@ -5,6 +5,8 @@
 
 static LexerToken Identifier(Lexer *lexer);
 
+static LexerToken String(Lexer *lexer);
+
 static LexerToken Hexadecimal(Lexer *lexer);
 
 static LexerToken Number(Lexer *lexer, bool isFloat);
@@ -50,6 +52,7 @@ LexerToken Lexer_Next(Lexer *lexer)
 		return Number(lexer, false);
 
 	switch (c) {
+	case '"': return String(lexer);
 	case '.':
 		if (isdigit(Peek(lexer)))
 			return Number(lexer, true);
@@ -57,7 +60,6 @@ LexerToken Lexer_Next(Lexer *lexer)
 	case ',': return MakeToken(lexer, LEXER_TOKEN_COMMA);
 	case ':': return MakeToken(lexer, LEXER_TOKEN_COLON);
 	case ';': return MakeToken(lexer, LEXER_TOKEN_SEMICOLON);
-	case '\0': return MakeToken(lexer, LEXER_TOKEN_EOF);
 	}
 
 	return MakeError(lexer, "Invalid token");
@@ -70,6 +72,20 @@ LexerToken Identifier(Lexer *lexer)
 	}
 
 	return MakeToken(lexer, LEXER_TOKEN_IDENTIFIER);
+}
+
+LexerToken String(Lexer *lexer)
+{
+	while (Peek(lexer) != '"' && !IsAtEnd(lexer))
+	{
+		Advance(lexer);
+	}
+
+	if (IsAtEnd(lexer))
+		return MakeError(lexer, "Unexpected EOF, expected \"");
+
+	Advance(lexer);
+	return MakeToken(lexer, LEXER_TOKEN_STRING_LITERAL);
 }
 
 LexerToken Hexadecimal(Lexer *lexer)
