@@ -35,6 +35,7 @@ typedef struct {
 	AstNodeType type;
 	u32 line;
 	u32 column;
+	u32 next;
 	union {
 		struct {
 			u32 count;
