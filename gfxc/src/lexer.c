@@ -5,6 +5,8 @@
 
 static LexerToken Hexadecimal(Lexer *lexer);
 
+static LexerToken Number(Lexer *lexer, bool isFloat);
+
 static inline LexerToken MakeToken(const Lexer *lexer, LexerTokenType type);
 
 static inline LexerToken MakeError(const Lexer *lexer, const char *msg);
@@ -38,17 +40,23 @@ LexerToken Lexer_Next(Lexer *lexer)
 		return MakeToken(lexer, LEXER_TOKEN_EOF);
 
 	char c = Advance(lexer);
+	if (c == '0' && Match(lexer, 'x'))
+		return Hexadecimal(lexer);
+	if (isdigit(c))
+		return Number(lexer, false);
+
 	switch (c) {
-	case '.': return MakeToken(lexer, LEXER_TOKEN_DOT);
+	case '.':
+		if (isdigit(Peek(lexer)))
+			return Number(lexer, true);
+		return MakeToken(lexer, LEXER_TOKEN_DOT);
 	case ',': return MakeToken(lexer, LEXER_TOKEN_COMMA);
 	case ':': return MakeToken(lexer, LEXER_TOKEN_COLON);
 	case ';': return MakeToken(lexer, LEXER_TOKEN_SEMICOLON);
 	case '\0': return MakeToken(lexer, LEXER_TOKEN_EOF);
-	default:
-		if (c == '0' && Match(lexer, 'x'))
-			return Hexadecimal(lexer);
-		return MakeError(lexer, "Invalid token");
 	}
+
+	return MakeError(lexer, "Invalid token");
 }
 
 LexerToken Hexadecimal(Lexer *lexer)
@@ -61,6 +69,26 @@ LexerToken Hexadecimal(Lexer *lexer)
 	}
 
 	return MakeToken(lexer, LEXER_TOKEN_HEX_LITERAL);
+}
+
+LexerToken Number(Lexer *lexer, bool isFloat)
+{
+	while (isdigit(Peek(lexer))) {
+		Advance(lexer);
+	}
+
+	if (Peek(lexer) == '.' && !isFloat) {
+		isFloat = true;
+		Advance(lexer);
+
+		while (isdigit(Peek(lexer))) {
+			Advance(lexer);
+		}
+	}
+
+	if (Match(lexer, 'f') || isFloat)
+		return MakeToken(lexer, LEXER_TOKEN_FLOAT_LITERAL);
+	return MakeToken(lexer, LEXER_TOKEN_INT_LITERAL);
 }
 
 inline LexerToken MakeToken(const Lexer *lexer, LexerTokenType type)
