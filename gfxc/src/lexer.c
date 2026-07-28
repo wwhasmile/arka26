@@ -61,7 +61,7 @@ LexerToken Lexer_Next(Lexer *lexer)
 	case ':': return MakeToken(lexer, LEXER_TOKEN_COLON);
 	case ';': return MakeToken(lexer, LEXER_TOKEN_SEMICOLON);
 	case '$': return MakeToken(lexer, LEXER_TOKEN_DOLLAR);
-	case '@': return MakeToken(lexer, LEXER_TOKEN_AT);
+	case '%': return MakeToken(lexer, LEXER_TOKEN_PERCENT);
 	}
 
 	return MakeError(lexer, "Invalid token");
