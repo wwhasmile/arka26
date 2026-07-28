@@ -26,6 +26,7 @@
           # Debug tools
           gdb
           # For editing flake
+          nil
           nixd
         ];
         hardeningDisable = [ "all" ];
