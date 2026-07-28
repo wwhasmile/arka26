@@ -34,37 +34,43 @@ void Lexer_Initialize(Lexer *lexer, const char *src)
 
 LexerToken Lexer_Next(Lexer *lexer)
 {
-	SkipSpaces(lexer);
+	while (true) {
+		SkipSpaces(lexer);
 
-	lexer->start = lexer->cur;
-	lexer->startLine = lexer->curLine;
-	lexer->startColumn = lexer->curColumn;
+		lexer->start = lexer->cur;
+		lexer->startLine = lexer->curLine;
+		lexer->startColumn = lexer->curColumn;
 
-	if (IsAtEnd(lexer))
-		return MakeToken(lexer, LEXER_TOKEN_EOF);
+		if (IsAtEnd(lexer))
+			return MakeToken(lexer, LEXER_TOKEN_EOF);
 
-	char c = Advance(lexer);
-	if (isalpha(c) || c == '_')
-		return Identifier(lexer);
-	if (c == '0' && Match(lexer, 'x'))
-		return Hexadecimal(lexer);
-	if (isdigit(c))
-		return Number(lexer, false);
+		char c = Advance(lexer);
+		if (isalpha(c) || c == '_')
+			return Identifier(lexer);
+		if (c == '0' && Match(lexer, 'x'))
+			return Hexadecimal(lexer);
+		if (isdigit(c))
+			return Number(lexer, false);
 
-	switch (c) {
-	case '"': return String(lexer);
-	case '.':
-		if (isdigit(Peek(lexer)))
-			return Number(lexer, true);
-		return MakeToken(lexer, LEXER_TOKEN_DOT);
-	case ',': return MakeToken(lexer, LEXER_TOKEN_COMMA);
-	case ':': return MakeToken(lexer, LEXER_TOKEN_COLON);
-	case ';': return MakeToken(lexer, LEXER_TOKEN_SEMICOLON);
-	case '$': return MakeToken(lexer, LEXER_TOKEN_DOLLAR);
-	case '%': return MakeToken(lexer, LEXER_TOKEN_PERCENT);
+		switch (c) {
+		case '"': return String(lexer);
+		case '.':
+			if (isdigit(Peek(lexer)))
+				return Number(lexer, true);
+			return MakeToken(lexer, LEXER_TOKEN_DOT);
+		case ',': return MakeToken(lexer, LEXER_TOKEN_COMMA);
+		case ':': return MakeToken(lexer, LEXER_TOKEN_COLON);
+		case ';': return MakeToken(lexer, LEXER_TOKEN_SEMICOLON);
+		case '$': return MakeToken(lexer, LEXER_TOKEN_DOLLAR);
+		case '%': return MakeToken(lexer, LEXER_TOKEN_PERCENT);
+		case '#':
+			while (Peek(lexer) != '\n') {
+				Advance(lexer);
+			}
+			break;
+		default: return MakeError(lexer, "Invalid token");
+		}
 	}
-
-	return MakeError(lexer, "Invalid token");
 }
 
 u32 Lexer_PreCount(Lexer *lexer)
