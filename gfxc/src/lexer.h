@@ -11,15 +11,18 @@ typedef struct {
 	const char* cur;
 	u32 curLine;
 	u32 curColumn;
-
-	u32 keywordCount;
-	const char **keywords;
 } Lexer;
 
 typedef enum {
 	LEXER_TOKEN_NONE,
 
 	LEXER_TOKEN_ERROR,
+
+	LEXER_TOKEN_IDENTIFIER,
+	LEXER_TOKEN_STRING_LITERAL,
+	LEXER_TOKEN_INT_LITERAL,
+	LEXER_TOKEN_FLOAT_LITERAL,
+	LEXER_TOKEN_HEX_LITERAL,
 
 	LEXER_TOKEN_DOT,
 	LEXER_TOKEN_COMMA,
