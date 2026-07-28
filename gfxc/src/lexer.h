@@ -19,6 +19,8 @@ typedef struct {
 typedef enum {
 	LEXER_TOKEN_NONE,
 
+	LEXER_TOKEN_ERROR,
+
 	LEXER_TOKEN_DOT,
 	LEXER_TOKEN_COMMA,
 	LEXER_TOKEN_COLON,
@@ -38,5 +40,7 @@ typedef struct {
 } LexerToken;
 
 void Lexer_Initialize(Lexer *lexer, const char *src);
+
+LexerToken Lexer_Next(Lexer *lexer);
 
 #endif // LEXER_H
