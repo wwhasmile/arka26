@@ -3,6 +3,8 @@
 #include <ctype.h>
 #include <string.h>
 
+static LexerToken Identifier(Lexer *lexer);
+
 static LexerToken Hexadecimal(Lexer *lexer);
 
 static LexerToken Number(Lexer *lexer, bool isFloat);
@@ -40,6 +42,8 @@ LexerToken Lexer_Next(Lexer *lexer)
 		return MakeToken(lexer, LEXER_TOKEN_EOF);
 
 	char c = Advance(lexer);
+	if (isalpha(c) || c == '_')
+		return Identifier(lexer);
 	if (c == '0' && Match(lexer, 'x'))
 		return Hexadecimal(lexer);
 	if (isdigit(c))
@@ -57,6 +61,15 @@ LexerToken Lexer_Next(Lexer *lexer)
 	}
 
 	return MakeError(lexer, "Invalid token");
+}
+
+LexerToken Identifier(Lexer *lexer)
+{
+	while (isalnum(Peek(lexer)) || Peek(lexer) == '_') {
+		Advance(lexer);
+	}
+
+	return MakeToken(lexer, LEXER_TOKEN_IDENTIFIER);
 }
 
 LexerToken Hexadecimal(Lexer *lexer)

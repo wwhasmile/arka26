@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 		"\ta\t\n;:\n"
 		"0xFFFFFF\n"
 		"0xZ\t\n"
-		"0 25 25f 1.26. 1.23f .25f 6.f\n"
+		"0 25 25f 1.26. 1.23f .25f 6.f _testIdentifier123 test_ide_2\n"
 		"";
 	Lexer_Initialize(&lexer, src);
 
