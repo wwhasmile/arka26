@@ -47,6 +47,9 @@ int main(int argc, char **argv)
 		"";
 	Lexer_Initialize(&lexer, src);
 
+	u32 tokenCount = Lexer_PreCount(&lexer);
+	printf("Valid token count: %u\n", tokenCount);
+
 	LexerToken token = { 0 };
 	do {
 		token = Lexer_Next(&lexer);
