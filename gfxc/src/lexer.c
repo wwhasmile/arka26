@@ -67,6 +67,28 @@ LexerToken Lexer_Next(Lexer *lexer)
 	return MakeError(lexer, "Invalid token");
 }
 
+u32 Lexer_PreCount(Lexer *lexer)
+{
+	u32 result = 0;
+
+	const char *cur = lexer->cur;
+	u32 curLine = lexer->curLine;
+	u32 curColumn = lexer->curColumn;
+
+	LexerToken token;
+	do {
+		token = Lexer_Next(lexer);
+		if (token.type != LEXER_TOKEN_ERROR && token.type != LEXER_TOKEN_EOF)
+			++result;
+	} while (token.type != LEXER_TOKEN_EOF);
+
+	lexer->cur = cur;
+	lexer->curLine = curLine;
+	lexer->curColumn = curColumn;
+
+	return result;
+}
+
 LexerToken Identifier(Lexer *lexer)
 {
 	while (isalnum(Peek(lexer)) || Peek(lexer) == '_') {
