@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "defines.h"
 
 int main(int argc, char **argv)
 {
@@ -10,6 +9,7 @@ int main(int argc, char **argv)
 		printf("Usage:\ngfxc input_file output_file");
 		return 1;
 	}
+	printf("%s\n", argv[0]);
 
 	return 0;
 }

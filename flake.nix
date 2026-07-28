@@ -23,9 +23,12 @@
           gnumake
           gcc
           emscripten
+          # Debug tools
+          gdb
           # For editing flake
           nixd
         ];
+        hardeningDisable = [ "all" ];
       };
     };
 }
