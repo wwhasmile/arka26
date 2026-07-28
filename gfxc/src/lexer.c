@@ -1,6 +1,9 @@
 #include "lexer.h"
 
+#include <ctype.h>
 #include <string.h>
+
+static LexerToken Hexadecimal(Lexer *lexer);
 
 static inline LexerToken MakeToken(const Lexer *lexer, LexerTokenType type);
 
@@ -11,6 +14,8 @@ static inline void SkipSpaces(Lexer *lexer);
 static inline bool IsAtEnd(const Lexer *lexer);
 
 static inline char Peek(const Lexer *lexer);
+
+static inline bool Match(Lexer *lexer, char c);
 
 static inline char Advance(Lexer *lexer);
 
@@ -32,15 +37,30 @@ LexerToken Lexer_Next(Lexer *lexer)
 	if (IsAtEnd(lexer))
 		return MakeToken(lexer, LEXER_TOKEN_EOF);
 
-	switch (Advance(lexer)) {
+	char c = Advance(lexer);
+	switch (c) {
 	case '.': return MakeToken(lexer, LEXER_TOKEN_DOT);
 	case ',': return MakeToken(lexer, LEXER_TOKEN_COMMA);
 	case ':': return MakeToken(lexer, LEXER_TOKEN_COLON);
 	case ';': return MakeToken(lexer, LEXER_TOKEN_SEMICOLON);
 	case '\0': return MakeToken(lexer, LEXER_TOKEN_EOF);
 	default:
+		if (c == '0' && Match(lexer, 'x'))
+			return Hexadecimal(lexer);
 		return MakeError(lexer, "Invalid token");
 	}
+}
+
+LexerToken Hexadecimal(Lexer *lexer)
+{
+	if (!isxdigit(Advance(lexer)))
+		return MakeError(lexer, "Expected a valid hexadecimal character");
+
+	while (isxdigit(Peek(lexer))) {
+		Advance(lexer);
+	}
+
+	return MakeToken(lexer, LEXER_TOKEN_HEX_LITERAL);
 }
 
 inline LexerToken MakeToken(const Lexer *lexer, LexerTokenType type)
@@ -93,6 +113,16 @@ inline bool IsAtEnd(const Lexer *lexer)
 inline char Peek(const Lexer *lexer)
 {
 	return *lexer->cur;
+}
+
+inline bool Match(Lexer *lexer, char c)
+{
+	if (IsAtEnd(lexer))
+		return false;
+	if (*lexer->cur != c)
+		return false;
+	Advance(lexer);
+	return true;
 }
 
 inline char Advance(Lexer *lexer)
