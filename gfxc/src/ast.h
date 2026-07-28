@@ -6,6 +6,8 @@
 typedef enum {
 	AST_NODE_TYPE_NONE,
 
+	AST_NODE_TYPE_HEAD,
+
 	AST_NODE_TYPE_TEXTURE,
 	AST_NODE_TYPE_REGION,
 	AST_NODE_TYPE_CONSTANT,
@@ -34,6 +36,9 @@ typedef struct {
 	u32 line;
 	u32 column;
 	union {
+		struct {
+			u32 count;
+		} head;
 		struct {
 			u32 fields;
 		} texture;
