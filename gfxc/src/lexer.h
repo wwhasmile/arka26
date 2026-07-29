@@ -49,6 +49,4 @@ void Lexer_Initialize(Lexer *lexer, const char *src);
 
 LexerToken Lexer_Next(Lexer *lexer);
 
-u32 Lexer_PreCount(Lexer *lexer);
-
 #endif // LEXER_H
