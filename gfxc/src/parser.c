@@ -8,8 +8,8 @@
 
 #define PARSER_DEFAULT_GFXC_AST_CAPACITY 128
 
-static const char *GFXC_TEXTURE_BLOCK_KEYWORD = "tex";
-static const char *GFXC_REGION_BLOCK_KEYWORD = "regi";
+static const char *GFXC_TEXTURE_BLOCK_KEYWORD = "texture";
+static const char *GFXC_REGION_BLOCK_KEYWORD = "region";
 static const char *GFXC_SCRIPT_BLOCK_KEYWORD = "script";
 static const char *GFXC_END_BLOCK_KEYWORD = "end";
 
@@ -77,7 +77,7 @@ void Root(ParserState *state)
 			id = ScriptDeclaration(state, id);
 			continue;
 		}
-		Advance(state);
+		ReportError(state, "Not a texture declaration, region definition, or a script");
 	}
 }
 
