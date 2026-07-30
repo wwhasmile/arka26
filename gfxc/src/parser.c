@@ -1,5 +1,4 @@
 #include "parser.h"
-#include "ast.h"
 
 #include <lexer.h>
 
@@ -76,7 +75,6 @@ u32 Identifier(ParserState *state, u32 last)
 u32 Texture(ParserState *state, u32 last)
 {
 	u32 id = Push(state, AST_NODE_TEXTURE, last);
-	state->ast[id].data.texture.fields = id + 1;
 	Advance(state);
 
 	u32 fieldId = 0;
@@ -110,7 +108,7 @@ u32 Field(ParserState *state, u32 last)
 	if (valueId == 0) {
 		return 0;
 	}
-	state->ast[id].data.field.value = valueId;
+
 	return id;
 }
 

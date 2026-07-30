@@ -38,26 +38,12 @@ typedef struct {
 	u32 next;
 	union {
 		struct {
-			u32 count;
-		} head;
-		struct {
-			u32 fields;
-		} texture;
-		struct {
-			u32 fields;
-		} region;
-		struct {
-			u32 value;
-		} constant;
-		struct {
 			const char *id;
 			u32 idLength;
-			u32 value;
 		} field;
 		struct {
 			const char *id;
 			u32 idLength;
-			u32 statements;
 		} script;
 		struct {
 			const char *id;

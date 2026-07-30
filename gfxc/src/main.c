@@ -13,7 +13,7 @@ void ShowTree(AstNode *ast, u32 idx)
 		}
 		if (ast[idx].type == AST_NODE_TEXTURE) {
 			printf("Beginning texture definition with these params:\n");
-			ShowTree(ast, ast[idx].data.texture.fields);
+			ShowTree(ast, idx + 1);
 			printf("End of texture definition\n");
 		} else if (ast[idx].type == AST_NODE_IDENTIFIER) {
 			printf("%.*s", ast[idx].data.identifier.idLength, ast[idx].data.identifier.id);
@@ -21,7 +21,7 @@ void ShowTree(AstNode *ast, u32 idx)
 				printf(", ");
 		} else if (ast[idx].type == AST_NODE_FIELD) {
 			printf("%.*s : ", ast[idx].data.field.idLength, ast[idx].data.field.id);
-			ShowTree(ast, ast[idx].data.field.value);
+			ShowTree(ast, idx + 1);
 			printf("\n");
 		} else if (ast[idx].type == AST_NODE_HEX_LITERAL) {
 			printf("0x%X", ast[idx].data.hexLiteral.value);
