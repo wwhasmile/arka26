@@ -68,6 +68,8 @@ LexerToken Lexer_Next(Lexer *lexer)
 				Advance(lexer);
 			}
 			break;
+		case '+': return MakeToken(lexer, LEXER_TOKEN_PLUS);
+		case '-': return MakeToken(lexer, LEXER_TOKEN_MINUS);
 		default: return MakeError(lexer, "Invalid token");
 		}
 	}
