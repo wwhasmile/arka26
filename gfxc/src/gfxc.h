@@ -97,8 +97,41 @@ typedef struct {
 	} data;
 } GfxcAstNode;
 
+typedef enum {
+	GFXC_TYPE_NONE,
+
+	GFXC_TYPE_R_REGISTER = 1,
+	GFXC_TYPE_RW_REGISTER = 2,
+
+	GFXC_TYPE_TEXTURE = 3,
+
+	GFXC_TYPE_INT = 1 << 2,
+	GFXC_TYPE_FLOAT = 1 << 3,
+	GFXC_TYPE_HEX = 1 << 4,
+
+	GFXC_TYPE_NUMBER = GFXC_TYPE_INT | GFXC_TYPE_FLOAT,
+
+	GFXC_TYPE_ENUM_COUNT
+} GfxcType;
+
+typedef struct {
+	const char *name;
+	i32 id;
+	GfxcType type;
+} GfxcRegister;
+
+typedef struct {
+	const char *name;
+	u32 id;
+	u32 argc;
+	GfxcType *argt;
+} GfxcInstruction;
+
 GfxcAstNode *GFXC_Parse(const char *src);
 
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src);
+
+extern const GfxcRegister GFXC_REGISTERS[];
+extern const GfxcInstruction GFXC_INSTRUCTIONS[];
 
 #endif // GFXC_H
