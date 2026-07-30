@@ -1,4 +1,4 @@
-#include <parser.h>
+#include <gfxc.h>
 
 #include <stdio.h>
 
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 		"end\n"
 		"";
 
-	AstNode *ast = Parser_Parse(src);
+	AstNode *ast = GFXC_Parse(src);
 	if (ast == NULL) {
 		return 1;
 	}

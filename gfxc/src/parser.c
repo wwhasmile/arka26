@@ -1,4 +1,4 @@
-#include "parser.h"
+#include <gfxc.h>
 
 #include <lexer.h>
 
@@ -28,7 +28,7 @@ static inline bool Check(const ParserState *state, LexerTokenType type, LexerTok
 static inline bool IsAtEnd(const ParserState *state);
 static inline LexerToken Advance(ParserState *state);
 
-AstNode *Parser_Parse(const char *src)
+AstNode *GFXC_Parse(const char *src)
 {
 	ParserState state = { 0 };
 	Lexer_Initialize(&state.lexer, src);

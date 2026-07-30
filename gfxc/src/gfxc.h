@@ -97,4 +97,6 @@ typedef struct {
 	} data;
 } AstNode;
 
+AstNode *GFXC_Parse(const char *src);
+
 #endif // GFXC_H
