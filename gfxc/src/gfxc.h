@@ -1,5 +1,5 @@
-#ifndef AST_H
-#define AST_H
+#ifndef GFXC_H
+#define GFXC_H
 
 #include <defines.h>
 
@@ -97,4 +97,4 @@ typedef struct {
 	} data;
 } AstNode;
 
-#endif // AST_H
+#endif // GFXC_H
