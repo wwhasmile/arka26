@@ -48,7 +48,7 @@ AstNode *Parser_Parse(const char *src)
 
 static u32 Identifier(ParserState *state, u32 last);
 
-static u32 Texture(ParserState *state, u32 last);
+static u32 DataDeclaration(ParserState *state, AstNodeType type, u32 last);
 
 static u32 Field(ParserState *state, u32 last);
 static u32 Value(ParserState *state, u32 last);
@@ -57,10 +57,15 @@ void Root(ParserState *state)
 {
 	u32 id = 0;
 	while (!IsAtEnd(state)) {
-		if (IsKeyword(state, "tex"))
-			id = Texture(state, id);
-		else
-			Advance(state);
+		if (IsKeyword(state, "tex")) {
+			id = DataDeclaration(state, AST_NODE_TEXTURE, id);
+			continue;
+		}
+		if (IsKeyword(state, "regi")) {
+			id = DataDeclaration(state, AST_NODE_REGION, id);
+			continue;
+		}
+		Advance(state);
 	}
 }
 
@@ -72,9 +77,9 @@ u32 Identifier(ParserState *state, u32 last)
 	return id;
 }
 
-u32 Texture(ParserState *state, u32 last)
+u32 DataDeclaration(ParserState *state, AstNodeType type, u32 last)
 {
-	u32 id = Push(state, AST_NODE_TEXTURE, last);
+	u32 id = Push(state, type, last);
 	Advance(state);
 
 	u32 fieldId = 0;

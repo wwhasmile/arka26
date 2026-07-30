@@ -15,6 +15,10 @@ void ShowTree(AstNode *ast, u32 idx)
 			printf("Beginning texture definition with these params:\n");
 			ShowTree(ast, idx + 1);
 			printf("End of texture definition\n");
+		} else if (ast[idx].type == AST_NODE_REGION) {
+			printf("Beginning region definition with these params:\n");
+			ShowTree(ast, idx + 1);
+			printf("End of region definition\n");
 		} else if (ast[idx].type == AST_NODE_IDENTIFIER) {
 			printf("%.*s", ast[idx].data.identifier.idLength, ast[idx].data.identifier.id);
 			if (ast[idx].next != 0)
@@ -67,6 +71,15 @@ int main(int argc, char **argv)
 		"end\n"
 		"tex\n"
 		"\tfuckYou: false\n"
+		"end\n"
+		"\n"
+		"regi\n"
+		"\tid: surfaceBg\n"
+		"\ttex: surface0\n"
+		"\tx: 0\n"
+		"\ty: 0\n"
+		"\twidth: 1280\n"
+		"\theight: 1024\n"
 		"end\n"
 		"";
 
