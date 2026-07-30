@@ -2,9 +2,21 @@
 
 #include <stdio.h>
 
-void GFXC_Error(const char *message, u32 line, u32 column)
+void GFXC_Error(const char *message, u32 line, u32 column, const char *src)
 {
-	fprintf(stderr, "ERROR: %s at %u:%u\n", message, line, column);
+	u32 currentLine = 0;
+	u32 lineLength = 0;
+	const char *actualLine;
+	while (*src != '\0' && currentLine < line) {
+		++lineLength;
+		if (*(src++) == '\n' && ++currentLine < line) {
+			actualLine = src;
+			lineLength = 0;
+		}
+	}
+	fprintf(stderr, "ERROR: %s at %u:%u\n  %u %.*s\n  %u %*s^\n", message, line, column,
+		line, lineLength - 1, actualLine,
+		line, column - 1, "");
 }
 
 void ShowTree(GfxcAstNode *ast, u32 idx)
@@ -81,12 +93,12 @@ int main(int argc, char **argv)
 
 	const char* src = ""
 		"tex surface0\n"
-		"\tfile: \"@R\""
+		"\tfile: \"@R\"\n"
 		"\thasData: false\n"
 		"\twidth: 1280\n"
 		"\theight: -1024.2f\n"
 		"end\n"
-		"tex b\n"
+		"tex 12g\n"
 		"\tfuckYou: false\n"
 		"end\n"
 		"\n"

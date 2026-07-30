@@ -99,6 +99,6 @@ typedef struct {
 
 GfxcAstNode *GFXC_Parse(const char *src);
 
-void GFXC_Error(const char *message, u32 line, u32 column);
+void GFXC_Error(const char *message, u32 line, u32 column, const char *src);
 
 #endif // GFXC_H

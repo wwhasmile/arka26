@@ -8,14 +8,19 @@
 
 #define PARSER_DEFAULT_GFXC_AST_CAPACITY 128
 
+static const char *GFXC_TEXTURE_BLOCK_KEYWORD = "tex";
+static const char *GFXC_REGION_BLOCK_KEYWORD = "regi";
+static const char *GFXC_SCRIPT_BLOCK_KEYWORD = "script";
+static const char *GFXC_END_BLOCK_KEYWORD = "end";
+
 typedef struct {
+	const char *src;
 	Lexer lexer;
 	LexerToken token;
 	GfxcAstNode *ast;
 	u32 current;
 	u32 capacity;
-	bool error:1;
-	bool panic:1;
+	bool error;
 } ParserState;
 
 static void Root(ParserState *state);
@@ -28,9 +33,12 @@ static inline bool Check(const ParserState *state, LexerTokenType type, LexerTok
 static inline bool IsAtEnd(const ParserState *state);
 static inline LexerToken Advance(ParserState *state);
 
+static void ReportError(ParserState *state, const char *message);
+
 GfxcAstNode *GFXC_Parse(const char *src)
 {
 	ParserState state = { 0 };
+	state.src = src;
 	Lexer_Initialize(&state.lexer, src);
 	Push(&state, GFXC_AST_NODE_HEAD, 0);
 	Advance(&state);
@@ -57,15 +65,15 @@ void Root(ParserState *state)
 {
 	u32 id = 0;
 	while (!IsAtEnd(state)) {
-		if (IsKeyword(state, "tex")) {
+		if (IsKeyword(state, GFXC_TEXTURE_BLOCK_KEYWORD)) {
 			id = DataDeclaration(state, GFXC_AST_NODE_TEXTURE, id);
 			continue;
 		}
-		if (IsKeyword(state, "regi")) {
+		if (IsKeyword(state, GFXC_REGION_BLOCK_KEYWORD)) {
 			id = DataDeclaration(state, GFXC_AST_NODE_REGION, id);
 			continue;
 		}
-		if (IsKeyword(state, "script")) {
+		if (IsKeyword(state, GFXC_SCRIPT_BLOCK_KEYWORD)) {
 			id = ScriptDeclaration(state, id);
 			continue;
 		}
@@ -90,18 +98,21 @@ u32 DataDeclaration(ParserState *state, GfxcAstNodeType type, u32 last)
 
 	LexerToken idToken;
 	if (!Match(state, LEXER_TOKEN_IDENTIFIER, &idToken)) {
+		ReportError(state, "Expected data block identifier");
 		return 0;
 	}
 	state->ast[id].data.dataDecl.idLength = idToken.length;
 	state->ast[id].data.dataDecl.id = idToken.lexeme;
 
 	u32 fieldId = 0;
-	while (!IsAtEnd(state) && !IsKeyword(state, "end")) {
+	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_END_BLOCK_KEYWORD)) {
 		fieldId = Field(state, fieldId);
 	}
 
-	if (IsAtEnd(state))
+	if (IsAtEnd(state)) {
+		ReportError(state, "Expected end, got EOF instead");
 		return 0;
+	}
 	Advance(state);
 
 	return id;
@@ -116,18 +127,21 @@ u32 ScriptDeclaration(ParserState *state, u32 last)
 
 	LexerToken idToken;
 	if (!Match(state, LEXER_TOKEN_IDENTIFIER, &idToken)) {
+		ReportError(state, "Expected script identifier");
 		return 0;
 	}
 	state->ast[id].data.dataDecl.idLength = idToken.length;
 	state->ast[id].data.dataDecl.id = idToken.lexeme;
 
 	u32 statementId = 0;
-	while (!IsAtEnd(state) && !IsKeyword(state, "end")) {
+	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_END_BLOCK_KEYWORD)) {
 		statementId = Statement(state, statementId);
 	}
 
-	if (IsAtEnd(state))
+	if (IsAtEnd(state)) {
+		ReportError(state, "Expected end, got EOF instead");
 		return 0;
+	}
 	Advance(state);
 
 	return id;
@@ -137,10 +151,11 @@ u32 Field(ParserState *state, u32 last)
 {
 	LexerToken idToken;
 	if (!Match(state, LEXER_TOKEN_IDENTIFIER, &idToken)) {
-		return 0;
+		ReportError(state, "Expected field identifier");
 	}
 
 	if (!Match(state, LEXER_TOKEN_COLON, NULL)) {
+		ReportError(state, "Expected ':'");
 		return 0;
 	}
 
@@ -170,7 +185,9 @@ u32 Statement(ParserState *state, u32 last)
 	case LEXER_TOKEN_FLOAT_LITERAL: /* FALLTHROUGH */
 	case LEXER_TOKEN_INT_LITERAL:
 		return TimeLabel(state, false, last);
-	default: return 0;
+	default:
+		ReportError(state, "Invalid statement");
+		return 0;
 	}
 }
 
@@ -204,9 +221,13 @@ u32 TimeLabel(ParserState *state, bool relative, u32 last)
 	state->ast[id].data.timeLabel.relative = relative;
 	char *endPtr;
 	state->ast[id].data.timeLabel.offset = strtof(state->token.lexeme, &endPtr);
+
 	Advance(state);
-	if (!Match(state, LEXER_TOKEN_COLON, NULL))
+	if (!Match(state, LEXER_TOKEN_COLON, NULL)) {
+		ReportError(state, "Expected ':'");
 		return 0;
+	}
+
 	return id;
 }
 
@@ -257,6 +278,7 @@ u32 Value(ParserState *state, u32 last)
 			id = Bool(state, false, last);
 			break;
 		}
+		ReportError(state, "Expected a valid value");
 		return 0;
 	}
 
@@ -365,4 +387,16 @@ inline LexerToken Advance(ParserState *state)
 	LexerToken token = state->token;
 	state->token = Lexer_Next(&state->lexer);
 	return token;
+}
+
+void ReportError(ParserState *state, const char *message)
+{
+	GFXC_Error(message, state->token.line, state->token.column, state->src);
+	state->error = true;
+	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_TEXTURE_BLOCK_KEYWORD) &&
+		!IsKeyword(state, GFXC_REGION_BLOCK_KEYWORD) &&
+		!IsKeyword(state, GFXC_SCRIPT_BLOCK_KEYWORD))
+	{
+		Advance(state);
+	}
 }
