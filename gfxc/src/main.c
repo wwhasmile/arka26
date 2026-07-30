@@ -2,57 +2,57 @@
 
 #include <stdio.h>
 
-void ShowTree(AstNode *ast, u32 idx)
+void ShowTree(GfxcAstNode *ast, u32 idx)
 {
 	while (true) {
-		if (ast[idx].type == AST_NODE_HEAD) {
+		if (ast[idx].type == GFXC_AST_NODE_HEAD) {
 			idx = 1;
 			continue;
 		}
-		if (ast[idx].type == AST_NODE_TEXTURE) {
+		if (ast[idx].type == GFXC_AST_NODE_TEXTURE) {
 			printf("Beginning texture %.*s with these params:\n", ast[idx].data.texture.idLength, ast[idx].data.texture.id);
 			ShowTree(ast, idx + 1);
 			printf("End of texture definition\n");
-		} else if (ast[idx].type == AST_NODE_REGION) {
+		} else if (ast[idx].type == GFXC_AST_NODE_REGION) {
 			printf("Beginning region %.*s with these params:\n", ast[idx].data.region.idLength, ast[idx].data.region.id);
 			ShowTree(ast, idx + 1);
 			printf("End of region definition\n");
-		} else if (ast[idx].type == AST_NODE_SCRIPT) {
+		} else if (ast[idx].type == GFXC_AST_NODE_SCRIPT) {
 			printf("Beginning script %.*s:\n", ast[idx].data.script.idLength, ast[idx].data.script.id);
 			ShowTree(ast, idx + 1);
 			printf("End of script definition\n");
-		} else if (ast[idx].type == AST_NODE_LABEL) {
+		} else if (ast[idx].type == GFXC_AST_NODE_LABEL) {
 			printf("Label %.*s\n", ast[idx].data.label.idLength, ast[idx].data.label.id);
-		} else if (ast[idx].type == AST_NODE_TIME_LABEL) {
+		} else if (ast[idx].type == GFXC_AST_NODE_TIME_LABEL) {
 			if (ast[idx].data.timeLabel.relative)
 				printf("Time label: +%f\n", ast[idx].data.timeLabel.offset);
 			else
 				printf("Time label: %f\n", ast[idx].data.timeLabel.offset);
-		} else if (ast[idx].type == AST_NODE_INSTRUCTION) {
+		} else if (ast[idx].type == GFXC_AST_NODE_INSTRUCTION) {
 			printf("Instruction %.*s, operands: ", ast[idx].data.identifier.idLength, ast[idx].data.identifier.id);
 			ShowTree(ast, idx + 1);
 			printf("\n");
-		} else if (ast[idx].type == AST_NODE_IDENTIFIER) {
+		} else if (ast[idx].type == GFXC_AST_NODE_IDENTIFIER) {
 			printf("%.*s", ast[idx].data.identifier.idLength, ast[idx].data.identifier.id);
 			if (ast[idx].next != 0)
 				printf(", ");
-		} else if (ast[idx].type == AST_NODE_FIELD) {
+		} else if (ast[idx].type == GFXC_AST_NODE_FIELD) {
 			printf("%.*s : ", ast[idx].data.field.idLength, ast[idx].data.field.id);
 			ShowTree(ast, idx + 1);
 			printf("\n");
-		} else if (ast[idx].type == AST_NODE_HEX_LITERAL) {
+		} else if (ast[idx].type == GFXC_AST_NODE_HEX_LITERAL) {
 			printf("0x%X", ast[idx].data.hexLiteral.value);
 			if (ast[idx].next != 0)
 				printf(", ");
-		} else if (ast[idx].type == AST_NODE_INT_LITERAL) {
+		} else if (ast[idx].type == GFXC_AST_NODE_INT_LITERAL) {
 			printf("%d", ast[idx].data.intLiteral.value);
 			if (ast[idx].next != 0)
 				printf(", ");
-		} else if (ast[idx].type == AST_NODE_FLOAT_LITERAL) {
+		} else if (ast[idx].type == GFXC_AST_NODE_FLOAT_LITERAL) {
 			printf("%f", ast[idx].data.floatLiteral.value);
 			if (ast[idx].next != 0)
 				printf(", ");
-		} else if (ast[idx].type == AST_NODE_STRING_LITERAL) {
+		} else if (ast[idx].type == GFXC_AST_NODE_STRING_LITERAL) {
 			printf("\"%.*s\"", ast[idx].data.stringLiteral.dataLength, ast[idx].data.stringLiteral.data);
 			if (ast[idx].next != 0)
 				printf(", ");
@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 		"end\n"
 		"";
 
-	AstNode *ast = GFXC_Parse(src);
+	GfxcAstNode *ast = GFXC_Parse(src);
 	if (ast == NULL) {
 		return 1;
 	}

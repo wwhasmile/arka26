@@ -6,12 +6,12 @@
 #include <string.h>
 #include <stdio.h>
 
-#define PARSER_DEFAULT_AST_CAPACITY 128
+#define PARSER_DEFAULT_GFXC_AST_CAPACITY 128
 
 typedef struct {
 	Lexer lexer;
 	LexerToken token;
-	AstNode *ast;
+	GfxcAstNode *ast;
 	u32 current;
 	u32 capacity;
 	bool error:1;
@@ -20,7 +20,7 @@ typedef struct {
 
 static void Root(ParserState *state);
 
-static u32 Push(ParserState *state, AstNodeType type, u32 last);
+static u32 Push(ParserState *state, GfxcAstNodeType type, u32 last);
 
 static inline bool IsKeyword(const ParserState *state, const char *keyword);
 static inline bool Match(ParserState *state, LexerTokenType type, LexerToken *token);
@@ -28,11 +28,11 @@ static inline bool Check(const ParserState *state, LexerTokenType type, LexerTok
 static inline bool IsAtEnd(const ParserState *state);
 static inline LexerToken Advance(ParserState *state);
 
-AstNode *GFXC_Parse(const char *src)
+GfxcAstNode *GFXC_Parse(const char *src)
 {
 	ParserState state = { 0 };
 	Lexer_Initialize(&state.lexer, src);
-	Push(&state, AST_NODE_HEAD, 0);
+	Push(&state, GFXC_AST_NODE_HEAD, 0);
 	Advance(&state);
 
 	Root(&state);
@@ -48,7 +48,7 @@ AstNode *GFXC_Parse(const char *src)
 
 static u32 Identifier(ParserState *state, u32 last);
 
-static u32 DataDeclaration(ParserState *state, AstNodeType type, u32 last);
+static u32 DataDeclaration(ParserState *state, GfxcAstNodeType type, u32 last);
 static u32 ScriptDeclaration(ParserState *state, u32 last);
 
 static u32 Value(ParserState *state, u32 last);
@@ -58,11 +58,11 @@ void Root(ParserState *state)
 	u32 id = 0;
 	while (!IsAtEnd(state)) {
 		if (IsKeyword(state, "tex")) {
-			id = DataDeclaration(state, AST_NODE_TEXTURE, id);
+			id = DataDeclaration(state, GFXC_AST_NODE_TEXTURE, id);
 			continue;
 		}
 		if (IsKeyword(state, "regi")) {
-			id = DataDeclaration(state, AST_NODE_REGION, id);
+			id = DataDeclaration(state, GFXC_AST_NODE_REGION, id);
 			continue;
 		}
 		if (IsKeyword(state, "script")) {
@@ -75,7 +75,7 @@ void Root(ParserState *state)
 
 u32 Identifier(ParserState *state, u32 last)
 {
-	u32 id = Push(state, AST_NODE_IDENTIFIER, last);
+	u32 id = Push(state, GFXC_AST_NODE_IDENTIFIER, last);
 	state->ast[id].data.identifier.idLength = state->token.length;
 	state->ast[id].data.identifier.id = state->token.lexeme;
 	return id;
@@ -83,7 +83,7 @@ u32 Identifier(ParserState *state, u32 last)
 
 static u32 Field(ParserState *state, u32 last);
 
-u32 DataDeclaration(ParserState *state, AstNodeType type, u32 last)
+u32 DataDeclaration(ParserState *state, GfxcAstNodeType type, u32 last)
 {
 	u32 id = Push(state, type, last);
 	Advance(state);
@@ -111,7 +111,7 @@ static u32 Statement(ParserState *state, u32 last);
 
 u32 ScriptDeclaration(ParserState *state, u32 last)
 {
-	u32 id = Push(state, AST_NODE_SCRIPT, last);
+	u32 id = Push(state, GFXC_AST_NODE_SCRIPT, last);
 	Advance(state);
 
 	LexerToken idToken;
@@ -144,7 +144,7 @@ u32 Field(ParserState *state, u32 last)
 		return 0;
 	}
 
-	u32 id = Push(state, AST_NODE_FIELD, last);
+	u32 id = Push(state, GFXC_AST_NODE_FIELD, last);
 	state->ast[id].data.field.idLength = idToken.length;
 	state->ast[id].data.field.id = idToken.lexeme;
 
@@ -176,17 +176,17 @@ u32 Statement(ParserState *state, u32 last)
 
 u32 IdentifierStatement(ParserState *state, u32 last)
 {
-	u32 id = Push(state, AST_NODE_NONE, last);
+	u32 id = Push(state, GFXC_AST_NODE_NONE, last);
 	state->ast[id].data.identifier.idLength = state->token.length;
 	state->ast[id].data.identifier.id = state->token.lexeme;
 	Advance(state);
 
 	if (Match(state, LEXER_TOKEN_COLON, NULL)) {
-		state->ast[id].type = AST_NODE_LABEL;
+		state->ast[id].type = GFXC_AST_NODE_LABEL;
 		return id;
 	}
 
-	state->ast[id].type = AST_NODE_INSTRUCTION;
+	state->ast[id].type = GFXC_AST_NODE_INSTRUCTION;
 
 	u32 valueId = 0;
 	while (true) {
@@ -200,7 +200,7 @@ u32 IdentifierStatement(ParserState *state, u32 last)
 
 u32 TimeLabel(ParserState *state, bool relative, u32 last)
 {
-	u32 id = Push(state, AST_NODE_TIME_LABEL, last);
+	u32 id = Push(state, GFXC_AST_NODE_TIME_LABEL, last);
 	state->ast[id].data.timeLabel.relative = relative;
 	char *endPtr;
 	state->ast[id].data.timeLabel.offset = strtof(state->token.lexeme, &endPtr);
@@ -266,7 +266,7 @@ u32 Value(ParserState *state, u32 last)
 
 u32 Hex(ParserState *state, u32 last)
 {
-	u32 id = Push(state, AST_NODE_HEX_LITERAL, last);
+	u32 id = Push(state, GFXC_AST_NODE_HEX_LITERAL, last);
 	char *endPtr;
 	state->ast[id].data.hexLiteral.value = (u32)strtoul(state->token.lexeme, &endPtr, 16);
 	return id;
@@ -274,7 +274,7 @@ u32 Hex(ParserState *state, u32 last)
 
 u32 Integer(ParserState *state, u32 last, bool negative)
 {
-	u32 id = Push(state, AST_NODE_INT_LITERAL, last);
+	u32 id = Push(state, GFXC_AST_NODE_INT_LITERAL, last);
 	char *endPtr;
 	state->ast[id].data.intLiteral.value = (u32)strtol(state->token.lexeme, &endPtr, 10);
 	if (negative)
@@ -284,7 +284,7 @@ u32 Integer(ParserState *state, u32 last, bool negative)
 
 u32 Float(ParserState *state, u32 last, bool negative)
 {
-	u32 id = Push(state, AST_NODE_FLOAT_LITERAL, last);
+	u32 id = Push(state, GFXC_AST_NODE_FLOAT_LITERAL, last);
 	char *endPtr;
 	state->ast[id].data.floatLiteral.value = strtof(state->token.lexeme, &endPtr);
 	if (negative)
@@ -294,7 +294,7 @@ u32 Float(ParserState *state, u32 last, bool negative)
 
 u32 String(ParserState *state, u32 last)
 {
-	u32 id = Push(state, AST_NODE_STRING_LITERAL, last);
+	u32 id = Push(state, GFXC_AST_NODE_STRING_LITERAL, last);
 	state->ast[id].data.stringLiteral.dataLength = state->token.length - 2;
 	state->ast[id].data.stringLiteral.data = state->token.lexeme + 1;
 	return id;
@@ -302,25 +302,25 @@ u32 String(ParserState *state, u32 last)
 
 u32 Bool(ParserState *state, bool value, u32 last)
 {
-	u32 id = Push(state, AST_NODE_INT_LITERAL, last);
+	u32 id = Push(state, GFXC_AST_NODE_INT_LITERAL, last);
 	state->ast[id].data.intLiteral.value = value;
 	return id;
 }
 
-u32 Push(ParserState *state, AstNodeType type, u32 last)
+u32 Push(ParserState *state, GfxcAstNodeType type, u32 last)
 {
 	if (state->current == state->capacity) {
 		u32 capacity = state->capacity == 0 ?
-			PARSER_DEFAULT_AST_CAPACITY :
+			PARSER_DEFAULT_GFXC_AST_CAPACITY :
 			state->capacity * 2;
-		AstNode *ast = (AstNode *)malloc(capacity * sizeof(AstNode));
-		memcpy(ast, state->ast, state->capacity * sizeof(AstNode));
+		GfxcAstNode *ast = (GfxcAstNode *)malloc(capacity * sizeof(GfxcAstNode));
+		memcpy(ast, state->ast, state->capacity * sizeof(GfxcAstNode));
 		free(state->ast);
 		state->ast = ast;
 		state->capacity = capacity;
 	}
 
-	AstNode node = { 0 };
+	GfxcAstNode node = { 0 };
 	node.type = type;
 	node.line = state->token.line;
 	node.column = state->token.column;
