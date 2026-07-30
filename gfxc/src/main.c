@@ -1,6 +1,7 @@
 #include <gfxc.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src)
 {
@@ -89,35 +90,23 @@ int main(int argc, char **argv)
 		printf("Usage:\ngfxc input_file output_file");
 		return 1;
 	}
-	printf("%s\n", argv[0]);
+	fflush(stdout);
 
-	const char* src = ""
-		"tex surface0\n"
-		"\tfile: \"@R\"\n"
-		"\thasData: false\n"
-		"\twidth: 1280\n"
-		"\theight: -1024.2f\n"
-		"end\n"
-		"tex 12g\n"
-		"\tfuckYou: false\n"
-		"end\n"
-		"\n"
-		"regi surfaceBg\n"
-		"\ttex: surface0\n"
-		"\tx: 0\n"
-		"\ty: 0\n"
-		"\twidth: 1280\n"
-		"\theight: 1024\n"
-		"end\n"
-		"\n"
-		"script ba\n"
-		"\tlabababababa:\n"
-		"\t+24:\n"
-		"\t24:\n"
-		"\tmov 25, a\n"
-		"\tmov 2, a,\n"
-		"end\n"
-		"";
+	char *src;
+	{
+		FILE *input = fopen(argv[1], "r");
+		if (input == NULL) {
+			printf("Input file \"%s\" wasn't found\n", argv[1]);
+			return 2;
+		}
+		fseek(input, 0, SEEK_END);
+		u32 size = ftell(input);
+		fseek(input, 0, SEEK_SET);
+		src = malloc(size + 1);
+		fread(src, size, 1, input);
+		src[size] = '\n';
+		fclose(input);
+	}
 
 	GfxcAstNode *ast = GFXC_Parse(src);
 	if (ast == NULL) {
