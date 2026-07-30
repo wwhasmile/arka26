@@ -38,6 +38,9 @@ typedef struct {
 	u32 next;
 	union {
 		struct {
+			const char *src;
+		} head;
+		struct {
 			const char *id;
 			u32 idLength;
 		} texture;

@@ -14,7 +14,6 @@ static const char *GFXC_SCRIPT_BLOCK_KEYWORD = "script";
 static const char *GFXC_END_BLOCK_KEYWORD = "end";
 
 typedef struct {
-	const char *src;
 	Lexer lexer;
 	LexerToken token;
 	GfxcAstNode *ast;
@@ -38,9 +37,9 @@ static void ReportError(ParserState *state, const char *message);
 GfxcAstNode *GFXC_Parse(const char *src)
 {
 	ParserState state = { 0 };
-	state.src = src;
 	Lexer_Initialize(&state.lexer, src);
 	Push(&state, GFXC_AST_NODE_HEAD, 0);
+	state.ast[0].data.head.src = src;
 	Advance(&state);
 
 	Root(&state);
@@ -391,7 +390,7 @@ inline LexerToken Advance(ParserState *state)
 
 void ReportError(ParserState *state, const char *message)
 {
-	GFXC_Error(message, state->token.line, state->token.column, state->src);
+	GFXC_Error(message, state->token.line, state->token.column, state->ast[0].data.head.src);
 	state->error = true;
 	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_TEXTURE_BLOCK_KEYWORD) &&
 		!IsKeyword(state, GFXC_REGION_BLOCK_KEYWORD) &&
