@@ -49,8 +49,8 @@ AstNode *Parser_Parse(const char *src)
 static u32 Identifier(ParserState *state, u32 last);
 
 static u32 DataDeclaration(ParserState *state, AstNodeType type, u32 last);
+static u32 ScriptDeclaration(ParserState *state, u32 last);
 
-static u32 Field(ParserState *state, u32 last);
 static u32 Value(ParserState *state, u32 last);
 
 void Root(ParserState *state)
@@ -65,6 +65,10 @@ void Root(ParserState *state)
 			id = DataDeclaration(state, AST_NODE_REGION, id);
 			continue;
 		}
+		if (IsKeyword(state, "script")) {
+			id = ScriptDeclaration(state, id);
+			continue;
+		}
 		Advance(state);
 	}
 }
@@ -76,6 +80,8 @@ u32 Identifier(ParserState *state, u32 last)
 	state->ast[id].data.identifier.id = state->token.lexeme;
 	return id;
 }
+
+static u32 Field(ParserState *state, u32 last);
 
 u32 DataDeclaration(ParserState *state, AstNodeType type, u32 last)
 {
@@ -92,6 +98,32 @@ u32 DataDeclaration(ParserState *state, AstNodeType type, u32 last)
 	u32 fieldId = 0;
 	while (!IsAtEnd(state) && !IsKeyword(state, "end")) {
 		fieldId = Field(state, fieldId);
+	}
+
+	if (IsAtEnd(state))
+		return 0;
+	Advance(state);
+
+	return id;
+}
+
+static u32 Statement(ParserState *state, u32 last);
+
+u32 ScriptDeclaration(ParserState *state, u32 last)
+{
+	u32 id = Push(state, AST_NODE_SCRIPT, last);
+	Advance(state);
+
+	LexerToken idToken;
+	if (!Match(state, LEXER_TOKEN_IDENTIFIER, &idToken)) {
+		return 0;
+	}
+	state->ast[id].data.dataDecl.idLength = idToken.length;
+	state->ast[id].data.dataDecl.id = idToken.lexeme;
+
+	u32 statementId = 0;
+	while (!IsAtEnd(state) && !IsKeyword(state, "end")) {
+		statementId = Statement(state, statementId);
 	}
 
 	if (IsAtEnd(state))
@@ -121,6 +153,60 @@ u32 Field(ParserState *state, u32 last)
 		return 0;
 	}
 
+	return id;
+}
+
+static u32 IdentifierStatement(ParserState *state, u32 last);
+static u32 TimeLabel(ParserState *state, bool relative, u32 last);
+
+u32 Statement(ParserState *state, u32 last)
+{
+	switch (state->token.type) {
+	case LEXER_TOKEN_IDENTIFIER:
+		return IdentifierStatement(state, last);
+	case LEXER_TOKEN_PLUS:
+		Advance(state);
+		return TimeLabel(state, true, last);
+	case LEXER_TOKEN_FLOAT_LITERAL: /* FALLTHROUGH */
+	case LEXER_TOKEN_INT_LITERAL:
+		return TimeLabel(state, false, last);
+	default: return 0;
+	}
+}
+
+u32 IdentifierStatement(ParserState *state, u32 last)
+{
+	u32 id = Push(state, AST_NODE_NONE, last);
+	state->ast[id].data.identifier.idLength = state->token.length;
+	state->ast[id].data.identifier.id = state->token.lexeme;
+	Advance(state);
+
+	if (Match(state, LEXER_TOKEN_COLON, NULL)) {
+		state->ast[id].type = AST_NODE_LABEL;
+		return id;
+	}
+
+	state->ast[id].type = AST_NODE_INSTRUCTION;
+
+	u32 valueId = 0;
+	while (true) {
+		valueId = Value(state, valueId);
+		if (!Match(state, LEXER_TOKEN_COMMA, NULL))
+			break;
+	}
+
+	return id;
+}
+
+u32 TimeLabel(ParserState *state, bool relative, u32 last)
+{
+	u32 id = Push(state, AST_NODE_TIME_LABEL, last);
+	state->ast[id].data.timeLabel.relative = relative;
+	char *endPtr;
+	state->ast[id].data.timeLabel.offset = strtof(state->token.lexeme, &endPtr);
+	Advance(state);
+	if (!Match(state, LEXER_TOKEN_COLON, NULL))
+		return 0;
 	return id;
 }
 

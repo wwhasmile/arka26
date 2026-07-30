@@ -19,6 +19,21 @@ void ShowTree(AstNode *ast, u32 idx)
 			printf("Beginning region %.*s with these params:\n", ast[idx].data.region.idLength, ast[idx].data.region.id);
 			ShowTree(ast, idx + 1);
 			printf("End of region definition\n");
+		} else if (ast[idx].type == AST_NODE_SCRIPT) {
+			printf("Beginning script %.*s:\n", ast[idx].data.script.idLength, ast[idx].data.script.id);
+			ShowTree(ast, idx + 1);
+			printf("End of script definition\n");
+		} else if (ast[idx].type == AST_NODE_LABEL) {
+			printf("Label %.*s\n", ast[idx].data.label.idLength, ast[idx].data.label.id);
+		} else if (ast[idx].type == AST_NODE_TIME_LABEL) {
+			if (ast[idx].data.timeLabel.relative)
+				printf("Time label: +%f\n", ast[idx].data.timeLabel.offset);
+			else
+				printf("Time label: %f\n", ast[idx].data.timeLabel.offset);
+		} else if (ast[idx].type == AST_NODE_INSTRUCTION) {
+			printf("Instruction %.*s, operands: ", ast[idx].data.identifier.idLength, ast[idx].data.identifier.id);
+			ShowTree(ast, idx + 1);
+			printf("\n");
 		} else if (ast[idx].type == AST_NODE_IDENTIFIER) {
 			printf("%.*s", ast[idx].data.identifier.idLength, ast[idx].data.identifier.id);
 			if (ast[idx].next != 0)
@@ -78,6 +93,14 @@ int main(int argc, char **argv)
 		"\ty: 0\n"
 		"\twidth: 1280\n"
 		"\theight: 1024\n"
+		"end\n"
+		"\n"
+		"script ba\n"
+		"\tlabababababa:\n"
+		"\t+24:\n"
+		"\t24:\n"
+		"\tmov 25, a\n"
+		"\tmov 2, a,\n"
 		"end\n"
 		"";
 
