@@ -2,6 +2,11 @@
 
 #include <stdio.h>
 
+void GFXC_Error(const char *message, u32 line, u32 column)
+{
+	fprintf(stderr, "ERROR: %s at %u:%u\n", message, line, column);
+}
+
 void ShowTree(GfxcAstNode *ast, u32 idx)
 {
 	while (true) {
