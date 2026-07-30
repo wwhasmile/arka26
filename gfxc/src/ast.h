@@ -40,6 +40,18 @@ typedef struct {
 		struct {
 			const char *id;
 			u32 idLength;
+		} texture;
+		struct {
+			const char *id;
+			u32 idLength;
+		} region;
+		struct {
+			const char *id;
+			u32 idLength;
+		} dataDecl;
+		struct {
+			const char *id;
+			u32 idLength;
 		} field;
 		struct {
 			const char *id;

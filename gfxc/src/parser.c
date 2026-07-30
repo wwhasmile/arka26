@@ -82,6 +82,13 @@ u32 DataDeclaration(ParserState *state, AstNodeType type, u32 last)
 	u32 id = Push(state, type, last);
 	Advance(state);
 
+	LexerToken idToken;
+	if (!Match(state, LEXER_TOKEN_IDENTIFIER, &idToken)) {
+		return 0;
+	}
+	state->ast[id].data.dataDecl.idLength = idToken.length;
+	state->ast[id].data.dataDecl.id = idToken.lexeme;
+
 	u32 fieldId = 0;
 	while (!IsAtEnd(state) && !IsKeyword(state, "end")) {
 		fieldId = Field(state, fieldId);

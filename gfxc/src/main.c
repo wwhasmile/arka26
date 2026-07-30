@@ -12,11 +12,11 @@ void ShowTree(AstNode *ast, u32 idx)
 			continue;
 		}
 		if (ast[idx].type == AST_NODE_TEXTURE) {
-			printf("Beginning texture definition with these params:\n");
+			printf("Beginning texture %.*s with these params:\n", ast[idx].data.texture.idLength, ast[idx].data.texture.id);
 			ShowTree(ast, idx + 1);
 			printf("End of texture definition\n");
 		} else if (ast[idx].type == AST_NODE_REGION) {
-			printf("Beginning region definition with these params:\n");
+			printf("Beginning region %.*s with these params:\n", ast[idx].data.region.idLength, ast[idx].data.region.id);
 			ShowTree(ast, idx + 1);
 			printf("End of region definition\n");
 		} else if (ast[idx].type == AST_NODE_IDENTIFIER) {
@@ -62,19 +62,17 @@ int main(int argc, char **argv)
 	printf("%s\n", argv[0]);
 
 	const char* src = ""
-		"tex\n"
-		"\tid: surface0\n"
+		"tex surface0\n"
 		"\tfile: \"@R\""
 		"\thasData: false\n"
 		"\twidth: 1280\n"
 		"\theight: -1024.2f\n"
 		"end\n"
-		"tex\n"
+		"tex b\n"
 		"\tfuckYou: false\n"
 		"end\n"
 		"\n"
-		"regi\n"
-		"\tid: surfaceBg\n"
+		"regi surfaceBg\n"
 		"\ttex: surface0\n"
 		"\tx: 0\n"
 		"\ty: 0\n"
