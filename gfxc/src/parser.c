@@ -297,7 +297,7 @@ u32 Integer(ParserState *state, u32 last, bool negative)
 {
 	u32 id = Push(state, GFXC_AST_NODE_INT_LITERAL, last);
 	char *endPtr;
-	state->ast[id].data.intLiteral.value = (u32)strtol(state->token.lexeme, &endPtr, 10);
+	state->ast[id].data.intLiteral.value = strtol(state->token.lexeme, &endPtr, 10);
 	if (negative)
 		state->ast[id].data.intLiteral.value *= -1;
 	return id;
