@@ -39,6 +39,7 @@ typedef struct {
 	union {
 		struct {
 			const char *src;
+			u32 count;
 		} head;
 		struct {
 			const char *id;

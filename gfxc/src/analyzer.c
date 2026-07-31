@@ -8,5 +8,11 @@ typedef struct {
 
 GfxcAstNodeSemanticData *GFXC_AnalyzeAST(const GfxcAstNode *ast)
 {
+	AnalyzerState state = {
+		ast,
+		NULL,
+		false
+	};
+
 	return NULL;
 }

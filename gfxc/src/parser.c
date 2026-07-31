@@ -50,6 +50,7 @@ GfxcAstNode *GFXC_Parse(const char *src)
 		return NULL;
 	}
 
+	state.ast[0].data.head.count = state.current;
 	return state.ast;
 }
 
