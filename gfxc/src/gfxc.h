@@ -103,19 +103,78 @@ typedef struct {
 typedef enum {
 	GFXC_TYPE_NONE,
 
-	GFXC_TYPE_R_REGISTER = 1,
-	GFXC_TYPE_RW_REGISTER = 2,
+	GFXC_TYPE_R_REGISTER = 1 << 0,
+	GFXC_TYPE_RW_REGISTER = GFXC_TYPE_R_REGISTER | (1 << 1),
 
-	GFXC_TYPE_TEXTURE = 3,
+	GFXC_TYPE_TEXTURE = 1 << 2,
+	GFXC_TYPE_REGION = 1 << 3,
+	GFXC_TYPE_SCRIPT = 1 << 4,
 
-	GFXC_TYPE_INT = 1 << 2,
-	GFXC_TYPE_FLOAT = 1 << 3,
-	GFXC_TYPE_HEX = 1 << 4,
+	GFXC_TYPE_HEX = 1 << 5,
+	GFXC_TYPE_STRING = 1 << 6,
+
+	GFXC_TYPE_INT = 1 << 7,
+	GFXC_TYPE_FLOAT = 1 << 8,
+
+	GFXC_TYPE_LABEL = 1 << 9,
 
 	GFXC_TYPE_NUMBER = GFXC_TYPE_INT | GFXC_TYPE_FLOAT,
 
 	GFXC_TYPE_ENUM_COUNT
 } GfxcType;
+
+typedef enum {
+	GFXC_TEXTURE_FIELD_PATH,
+	GFXC_TEXTURE_FIELD_HAS_DATA,
+	GFXC_TEXTURE_FIELD_FORMAT,
+	GFXC_TEXTURE_FIELD_WIDTH,
+	GFXC_TEXTURE_FIELD_HEIGHT,
+	GFXC_TEXTURE_FIELD_ENUM_COUNT
+} GfxcTextureField;
+
+typedef enum {
+	GFXC_REGION_FIELD_TEXTURE,
+	GFXC_REGION_FIELD_X,
+	GFXC_REGION_FIELD_Y,
+	GFXC_REGION_FIELD_WIDTH,
+	GFXC_REGION_FIELD_HEIGHT,
+	GFXC_REGION_FIELD_ENUM_COUNT
+} GfxcRegionField;
+
+typedef union {
+	struct {
+		GfxcTextureField field;
+
+	} textureKey;
+	struct {
+		GfxcType type;
+	} textureValue;
+	struct {
+		GfxcRegionField field;
+	} regionKey;
+	struct {
+		GfxcType type;
+		union {
+			struct {
+				u32 id;
+			} texture;
+		} data;
+	} regionValue;
+	struct {
+		GfxcType type;
+		union {
+			struct {
+				u32 id;
+			} region;
+			struct {
+				u32 id;
+			} script;
+			struct {
+				u32 to;
+			} label;
+		} data;
+	} operand;
+} GfxcAstNodeSemanticData;
 
 typedef struct {
 	const char *name;
