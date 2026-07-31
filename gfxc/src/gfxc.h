@@ -191,6 +191,8 @@ typedef struct {
 
 GfxcAstNode *GFXC_Parse(const char *src);
 
+GfxcAstNodeSemanticData *GFXC_AnalyzeAST(const GfxcAstNode *ast);
+
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src);
 
 extern const GfxcRegister GFXC_REGISTERS[];
