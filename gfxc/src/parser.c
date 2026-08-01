@@ -384,9 +384,8 @@ void ReportError(ParserState *state, const char *message)
 	GFXC_Error(message, state->token.line, state->token.column, state->ast[0].data.head.src);
 	state->error = true;
 	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_TEXTURE_BLOCK_KEYWORD) &&
-		!IsKeyword(state, GFXC_REGION_BLOCK_KEYWORD) &&
-		!IsKeyword(state, GFXC_SCRIPT_BLOCK_KEYWORD))
-	{
+			!IsKeyword(state, GFXC_REGION_BLOCK_KEYWORD) &&
+			!IsKeyword(state, GFXC_SCRIPT_BLOCK_KEYWORD)) {
 		Advance(state);
 	}
 }
