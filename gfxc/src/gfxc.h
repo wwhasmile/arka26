@@ -144,12 +144,17 @@ typedef enum {
 
 typedef union {
 	struct {
+		u32 id;
+	} texture;
+	struct {
 		GfxcTextureField field;
-
 	} textureKey;
 	struct {
 		GfxcType type;
 	} textureValue;
+	struct region {
+		u32 id;
+	} region;
 	struct {
 		GfxcRegionField field;
 	} regionKey;
@@ -161,6 +166,12 @@ typedef union {
 			} texture;
 		} data;
 	} regionValue;
+	struct {
+		u32 id;
+	} script;
+	struct {
+		u32 id;
+	} instruction;
 	struct {
 		GfxcType type;
 		union {
@@ -175,7 +186,66 @@ typedef union {
 			} label;
 		} data;
 	} operand;
-} GfxcAstNodeSemanticData;
+} GfxcAstAnnotation;
+
+typedef enum {
+	GFXC_SYMBOL_NONE,
+	GFXC_SYMBOL_CONSTANT,
+	GFXC_SYMBOL_TEXTURE,
+	GFXC_SYMBOL_REGION,
+	GFXC_SYMBOL_SCRIPT,
+	GFXC_SYMBOL_REG,
+	GFXC_SYMBOL_LABEL,
+	GFXC_SYMBOL_ENUM_COUNT
+} GfxcSymbolType;
+
+typedef union {
+	struct {
+		GfxcSymbolType type;
+		const char *id;
+		u32 idLength;
+		GfxcType constantType;
+		union {
+			u32 texture;
+			u32 region;
+			u32 script;
+			i32 integer;
+			f32 floatv;
+			struct {
+				u32 length;
+				const char *data;
+			} str;
+		} value;
+	} constant;
+	struct {
+		GfxcSymbolType type;
+		u32 idLength;
+		const char *id;
+		u32 numId;
+	} texture;
+	struct {
+		GfxcSymbolType type;
+		u32 idLength;
+		const char *id;
+		u32 numId;
+	} region;
+	struct {
+		GfxcSymbolType type;
+		u32 idLength;
+		const char *id;
+		u32 numId;
+	} script;
+	struct {
+		GfxcSymbolType type;
+		GfxcType regType;
+		const char *id;
+		u32 idLength;
+		i32 idx;
+	} reg;
+	struct {
+		GfxcSymbolType type;
+	} label;
+} GfxcSymbol;
 
 typedef struct {
 	const char *name;
@@ -191,8 +261,6 @@ typedef struct {
 } GfxcInstruction;
 
 GfxcAstNode *GFXC_Parse(const char *src);
-
-GfxcAstNodeSemanticData *GFXC_AnalyzeAST(const GfxcAstNode *ast);
 
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src);
 
