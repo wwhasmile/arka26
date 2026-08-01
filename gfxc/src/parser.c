@@ -1,5 +1,6 @@
 #include <gfxc.h>
 
+#include <stack.h>
 #include <lexer.h>
 
 #include <stdlib.h>
@@ -17,8 +18,6 @@ typedef struct {
 	Lexer lexer;
 	LexerToken token;
 	GfxcAstNode *ast;
-	u32 current;
-	u32 capacity;
 	bool error;
 } ParserState;
 
@@ -44,13 +43,12 @@ GfxcAstNode *GFXC_Parse(const char *src)
 
 	Root(&state);
 
-	if (state.error && state.ast != NULL)
-	{
-		free(state.ast);
+	if (state.error && state.ast != NULL) {
+		Stack_Release(state.ast);
 		return NULL;
 	}
 
-	state.ast[0].data.head.count = state.current;
+	state.ast[0].data.head.count = Stack_Count(state.ast);
 	return state.ast;
 }
 
@@ -331,16 +329,8 @@ u32 Bool(ParserState *state, bool value, u32 last)
 
 u32 Push(ParserState *state, GfxcAstNodeType type, u32 last)
 {
-	if (state->current == state->capacity) {
-		u32 capacity = state->capacity == 0 ?
-			PARSER_DEFAULT_GFXC_AST_CAPACITY :
-			state->capacity * 2;
-		GfxcAstNode *ast = (GfxcAstNode *)malloc(capacity * sizeof(GfxcAstNode));
-		memcpy(ast, state->ast, state->capacity * sizeof(GfxcAstNode));
-		free(state->ast);
-		state->ast = ast;
-		state->capacity = capacity;
-	}
+	if (state->ast == NULL)
+		state->ast = Stack_InitCapacity(sizeof(GfxcAstNode), PARSER_DEFAULT_GFXC_AST_CAPACITY);
 
 	GfxcAstNode node = { 0 };
 	node.type = type;
@@ -348,11 +338,11 @@ u32 Push(ParserState *state, GfxcAstNodeType type, u32 last)
 	node.column = state->token.column;
 	node.next = 0;
 
-	if (last > 0 && last < state->current)
-		state->ast[last].next = state->current;
-
-	state->ast[state->current++] = node;
-	return state->current - 1;
+	u32 idx;
+	state->ast = Stack_Push(state->ast, &node, &idx);
+	if (last > 0)
+		state->ast[last].next = idx;
+	return idx;
 }
 
 inline bool IsKeyword(const ParserState *state, const char *keyword)
