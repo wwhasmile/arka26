@@ -7,26 +7,21 @@
 #define STACK_DEFAULT_CAPACITY 8
 #endif // STACK_DEFAULT_CAPACITY
 
-typedef struct Stack {
-	void *ptr;
-	u32 elemSize;
-	u32 capacity;
-	u32 count;
-} Stack;
+void *Stack_InitCapacity(u32 elemSize, u32 capacity);
 
-Stack Stack_InitCapacity(u32 elemSize, u32 capacity);
-
-inline Stack Stack_Init(u32 elemSize)
+inline void *Stack_Init(u32 elemSize)
 {
 	return Stack_InitCapacity(elemSize, STACK_DEFAULT_CAPACITY);
 }
 
-u32 Stack_Push(Stack *stack, const void *src);
+void *Stack_Push(void *stack, const void *src, u32 *idx);
 
-bool Stack_Pop(Stack *stack, void *dest);
+bool Stack_Pop(void *stack, void *dest);
 
-void Stack_Reset(Stack *stack, u32 to);
+void Stack_Reset(void *stack, u32 to);
 
-void Stack_Release(Stack *stack);
+u32 Stack_Count(void *stack);
+
+void Stack_Release(void *stack);
 
 #endif // STACK_H
