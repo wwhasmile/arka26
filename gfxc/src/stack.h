@@ -20,7 +20,7 @@ bool Stack_Pop(void *stack, void *dest);
 
 void Stack_Reset(void *stack, u32 to);
 
-u32 Stack_Count(void *stack);
+u32 Stack_Count(const void *stack);
 
 void Stack_Release(void *stack);
 

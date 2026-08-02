@@ -60,7 +60,7 @@ void Stack_Reset(void *stack, u32 to)
 	ptr->count = to;
 }
 
-u32 Stack_Count(void *stack)
+u32 Stack_Count(const void *stack)
 {
 	Stack *ptr = (Stack*)stack - 1;
 	return ptr->count;
