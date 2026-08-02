@@ -61,8 +61,6 @@ LexerToken Lexer_Next(Lexer *lexer)
 		case ',': return MakeToken(lexer, LEXER_TOKEN_COMMA);
 		case ':': return MakeToken(lexer, LEXER_TOKEN_COLON);
 		case ';': return MakeToken(lexer, LEXER_TOKEN_SEMICOLON);
-		case '$': return MakeToken(lexer, LEXER_TOKEN_DOLLAR);
-		case '%': return MakeToken(lexer, LEXER_TOKEN_PERCENT);
 		case '#':
 			while (Peek(lexer) != '\n') {
 				Advance(lexer);

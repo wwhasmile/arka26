@@ -25,6 +25,7 @@
           emscripten
           # Debug tools
           gdb
+          valgrind
           # For editing flake
           nil
           nixd

@@ -1,3 +1,4 @@
+#include "stack.h"
 #include <gfxc.h>
 
 #include <stdio.h>
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
 		fseek(input, 0, SEEK_SET);
 		src = malloc(size + 1);
 		fread(src, size, 1, input);
-		src[size] = '\n';
+		src[size] = '\0';
 		fclose(input);
 	}
 
@@ -52,7 +53,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	GFXC_Analyze(ast);
+	GfxcAstAnnotation *annotations = GFXC_Analyze(ast);
+
+	Stack_Release(ast);
+	free(annotations);
+	free(src);
 
 	return 0;
 }
