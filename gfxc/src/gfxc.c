@@ -118,3 +118,20 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+
+const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
+	// Texture formats
+	{
+		"TEXTURE_FORMAT_RGBA8",
+		sizeof("TEXTURE_FORMAT_RGBA8") - 1,
+		{
+			.integer = {
+				GFXC_TYPE_INT,
+				0
+			}
+		}
+	},
+	{
+		0
+	}
+};

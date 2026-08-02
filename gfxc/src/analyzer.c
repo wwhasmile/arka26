@@ -12,6 +12,8 @@ typedef struct {
 	bool error;
 } AnalyzerState;
 
+extern const GfxcSymbol GFXC_DEFAULT_SYMBOLS[];
+
 static void ReportError(AnalyzerState *state, const char *msg, u32 id);
 
 static void Root(AnalyzerState *state);
@@ -38,7 +40,7 @@ GfxcAstAnnotation *GFXC_Analyze(const GfxcAstNode *ast)
 	return state.astAnnotations;
 }
 
-static bool IsSymbol(const AnalyzerState *state, const char *id, u32 idLength, u32 *symbol);
+static const GfxcSymbol *GetSymbol(const AnalyzerState *state, const char *id, u32 idLength);
 static bool CheckFieldName(const AnalyzerState *state, u32 idx, const char *id);
 static GfxcType ResolveType(AnalyzerState *state, u32 idx);
 
@@ -76,7 +78,7 @@ void BuildRootSymbolTable(AnalyzerState *state)
 		GfxcSymbol symbol = { 0 };
 		symbol.idLength = ast[i].data.decl.idLength;
 		symbol.id = ast[i].data.decl.id;
-		if (IsSymbol(state, ast[i].data.decl.id, ast[i].data.decl.idLength, NULL)) {
+		if (GetSymbol(state, ast[i].data.decl.id, ast[i].data.decl.idLength) != NULL) {
 			ReportError(state, "There is already a declaration with this name", i);
 			continue;
 		}
@@ -268,19 +270,26 @@ void Region(AnalyzerState *state, u32 idx)
 		ReportError(state, "Region always expects a texture", idx);
 }
 
-bool IsSymbol(const AnalyzerState *state, const char *id, u32 idLength, u32 *symbol)
+const GfxcSymbol *GetSymbol(const AnalyzerState *state, const char *id, u32 idLength)
 {
-	const GfxcSymbol *symbols = state->symbols;
+	const GfxcSymbol *symbols = GFXC_DEFAULT_SYMBOLS;
+	for (u32 i = 0; symbols[i].id != NULL; ++i) {
+		if (idLength != symbols[i].idLength)
+			continue;
+		if (strncmp(id, symbols[i].id, idLength) != 0)
+			continue;
+		return symbols + i;
+	}
+
+	symbols = state->symbols;
 	for (u32 i = 0, j = Stack_Count(state->symbols); i < j; ++i) {
 		if (idLength != symbols[i].idLength)
 			continue;
 		if (strncmp(id, symbols[i].id, idLength) != 0)
 			continue;
-		if (symbol != NULL)
-			*symbol = i;
-		return true;
+		return symbols + i;
 	}
-	return false;
+	return NULL;
 }
 
 bool CheckFieldName(const AnalyzerState *state, u32 idx, const char *id)
@@ -331,13 +340,12 @@ GfxcType ResolveIdentifier(AnalyzerState *state, u32 idx)
 {
 	const GfxcAstNode *ast = state->ast;
 	GfxcAstAnnotation *annotations = state->astAnnotations;
-	const GfxcSymbol *symbols = state->symbols;
 
-	u32 symbol;
-	if (!IsSymbol(state, ast[idx].data.identifier.id, ast[idx].data.identifier.idLength, &symbol))
+	const GfxcSymbol *symbol = GetSymbol(state, ast[idx].data.identifier.id, ast[idx].data.identifier.idLength);
+	if (symbol == NULL)
 		return GFXC_TYPE_NONE;
-	annotations[idx].value = symbols[symbol].value;
-	return symbols[symbol].value.shared.type;
+	annotations[idx].value = symbol->value;
+	return symbol->value.shared.type;
 }
 
 void ReportError(AnalyzerState *state, const char *msg, u32 id)
