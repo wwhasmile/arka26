@@ -224,7 +224,7 @@ void Region(AnalyzerState *state, u32 idx)
 				continue;
 			}
 			foundY = true;
-			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
+			annotations[i].regionKey.field = GFXC_REGION_FIELD_Y;
 
 			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
 				ReportError(state,
@@ -238,7 +238,7 @@ void Region(AnalyzerState *state, u32 idx)
 				continue;
 			}
 			foundWidth = true;
-			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
+			annotations[i].regionKey.field = GFXC_REGION_FIELD_WIDTH;
 
 			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
 				ReportError(state,
@@ -248,15 +248,15 @@ void Region(AnalyzerState *state, u32 idx)
 		}
 		if (CheckFieldName(state, i, "height")) {
 			if (foundHeight) {
-				ReportError(state, "Region width has already been defined", i);
+				ReportError(state, "Region height has already been defined", i);
 				continue;
 			}
 			foundHeight = true;
-			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
+			annotations[i].regionKey.field = GFXC_REGION_FIELD_HEIGHT;
 
 			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
 				ReportError(state,
-					"Region width only accepts floating point values",
+					"Region height only accepts floating point values",
 					i + 1);
 			continue;
 		}
