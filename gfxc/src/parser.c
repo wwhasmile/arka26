@@ -99,8 +99,8 @@ u32 DataDeclaration(ParserState *state, GfxcAstNodeType type, u32 last)
 		ReportError(state, "Expected data block identifier");
 		return 0;
 	}
-	state->ast[id].data.dataDecl.idLength = idToken.length;
-	state->ast[id].data.dataDecl.id = idToken.lexeme;
+	state->ast[id].data.decl.idLength = idToken.length;
+	state->ast[id].data.decl.id = idToken.lexeme;
 
 	u32 fieldId = 0;
 	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_END_BLOCK_KEYWORD)) {
@@ -128,8 +128,8 @@ u32 ScriptDeclaration(ParserState *state, u32 last)
 		ReportError(state, "Expected script identifier");
 		return 0;
 	}
-	state->ast[id].data.dataDecl.idLength = idToken.length;
-	state->ast[id].data.dataDecl.id = idToken.lexeme;
+	state->ast[id].data.decl.idLength = idToken.length;
+	state->ast[id].data.decl.id = idToken.lexeme;
 
 	u32 statementId = 0;
 	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_END_BLOCK_KEYWORD)) {

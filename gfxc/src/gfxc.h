@@ -53,7 +53,7 @@ typedef struct {
 		struct {
 			const char *id;
 			u32 idLength;
-		} dataDecl;
+		} decl;
 		struct {
 			const char *id;
 			u32 idLength;
@@ -133,7 +133,7 @@ typedef union {
 	} script;
 	struct {
 		GfxcType type;
-		u32 id;
+		i32 id;
 	} reg;
 	struct {
 		GfxcType type;
@@ -202,50 +202,10 @@ typedef union {
 	GfxcValue value;
 } GfxcAstAnnotation;
 
-typedef enum {
-	GFXC_SYMBOL_NONE,
-	GFXC_SYMBOL_CONSTANT,
-	GFXC_SYMBOL_TEXTURE,
-	GFXC_SYMBOL_REGION,
-	GFXC_SYMBOL_SCRIPT,
-	GFXC_SYMBOL_REG,
-	GFXC_SYMBOL_LABEL,
-	GFXC_SYMBOL_ENUM_COUNT
-} GfxcSymbolType;
-
 typedef struct {
-	GfxcSymbolType type;
-	u32 idLength;
 	const char *id;
-} GfxcSymbolShared;
-
-typedef union {
-	GfxcSymbolShared shared;
-	struct {
-		GfxcSymbolShared shared;
-		GfxcValue value;
-	} constant;
-	struct {
-		GfxcSymbolShared shared;
-		u32 numId;
-	} texture;
-	struct {
-		GfxcSymbolShared shared;
-		u32 numId;
-	} region;
-	struct {
-		GfxcSymbolShared shared;
-		u32 numId;
-	} script;
-	struct {
-		GfxcSymbolShared shared;
-		GfxcType regType;
-		i32 idx;
-	} reg;
-	struct {
-		GfxcSymbolShared shared;
-		u32 to;
-	} label;
+	u32 idLength;
+	GfxcValue value;
 } GfxcSymbol;
 
 typedef struct {

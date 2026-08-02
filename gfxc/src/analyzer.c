@@ -74,27 +74,27 @@ void BuildRootSymbolTable(AnalyzerState *state)
 	GfxcAstAnnotation *annotations = state->astAnnotations;
 	for (u32 i = 1; i != 0; i = ast[i].next) {
 		GfxcSymbol symbol = { 0 };
-		symbol.shared.idLength = ast[i].data.dataDecl.idLength;
-		symbol.shared.id = ast[i].data.dataDecl.id;
-		if (IsSymbol(state, ast[i].data.dataDecl.id, ast[i].data.dataDecl.idLength, NULL)) {
+		symbol.idLength = ast[i].data.decl.idLength;
+		symbol.id = ast[i].data.decl.id;
+		if (IsSymbol(state, ast[i].data.decl.id, ast[i].data.decl.idLength, NULL)) {
 			ReportError(state, "There is already a declaration with this name", i);
 			continue;
 		}
 		switch (ast[i].type) {
 		case GFXC_AST_NODE_TEXTURE:
 			annotations[i].texture.id = textureCount;
-			symbol.shared.type = GFXC_SYMBOL_TEXTURE;
-			symbol.texture.numId = textureCount++;
+			symbol.value.shared.type = GFXC_TYPE_TEXTURE;
+			symbol.value.texture.id = textureCount++;
 			break;
 		case GFXC_AST_NODE_REGION:
 			annotations[i].region.id = regionCount;
-			symbol.shared.type = GFXC_SYMBOL_REGION;
-			symbol.region.numId = regionCount++;
+			symbol.value.shared.type = GFXC_TYPE_REGION;
+			symbol.value.region.id = regionCount++;
 			break;
 		case GFXC_AST_NODE_SCRIPT:
 			annotations[i].script.id = scriptCount;
-			symbol.shared.type = GFXC_SYMBOL_SCRIPT;
-			symbol.script.numId = scriptCount++;
+			symbol.value.shared.type = GFXC_TYPE_SCRIPT;
+			symbol.value.script.id = scriptCount++;
 			break;
 		default: break; // Shouldn't get here in normal circumstances
 		}
@@ -270,9 +270,9 @@ bool IsSymbol(const AnalyzerState *state, const char *id, u32 idLength, u32 *sym
 {
 	const GfxcSymbol *symbols = state->symbols;
 	for (u32 i = 0, j = Stack_Count(state->symbols); i < j; ++i) {
-		if (idLength != symbols[i].shared.idLength)
+		if (idLength != symbols[i].idLength)
 			continue;
-		if (strncmp(symbols[i].shared.id, id, idLength) != 0)
+		if (strncmp(id, symbols[i].id, idLength) != 0)
 			continue;
 		if (symbol != NULL)
 			*symbol = i;
@@ -284,7 +284,10 @@ bool IsSymbol(const AnalyzerState *state, const char *id, u32 idLength, u32 *sym
 bool CheckFieldName(const AnalyzerState *state, u32 idx, const char *id)
 {
 	const GfxcAstNode *ast = state->ast;
-	return strncmp(ast[idx].data.field.id, id, ast[idx].data.field.idLength) == 0;
+	u32 len = strlen(id);
+	if (len != ast[idx].data.field.idLength)
+		return false;
+	return strncmp(id, ast[idx].data.field.id, ast[idx].data.field.idLength) == 0;
 }
 
 static GfxcType ResolveIdentifier(AnalyzerState *state, u32 idx);
@@ -331,32 +334,8 @@ GfxcType ResolveIdentifier(AnalyzerState *state, u32 idx)
 	u32 symbol;
 	if (!IsSymbol(state, ast[idx].data.identifier.id, ast[idx].data.identifier.idLength, &symbol))
 		return GFXC_TYPE_NONE;
-	switch (symbols[symbol].shared.type) {
-	case GFXC_SYMBOL_CONSTANT:
-		annotations[idx].value = symbols[symbol].constant.value;
-		return symbols[symbol].constant.value.shared.type;
-	case GFXC_SYMBOL_TEXTURE:
-		annotations[idx].value.shared.type = GFXC_TYPE_TEXTURE;
-		annotations[idx].value.texture.id = symbols[symbol].texture.numId;
-		return GFXC_TYPE_TEXTURE;
-	case GFXC_SYMBOL_REGION:
-		annotations[idx].value.shared.type = GFXC_TYPE_REGION;
-		annotations[idx].value.region.id = symbols[symbol].region.numId;
-		return GFXC_TYPE_REGION;
-	case GFXC_SYMBOL_SCRIPT:
-		annotations[idx].value.shared.type = GFXC_TYPE_SCRIPT;
-		annotations[idx].value.script.id = symbols[symbol].script.numId;
-		return GFXC_TYPE_SCRIPT;
-	case GFXC_SYMBOL_LABEL:
-		annotations[idx].value.shared.type = GFXC_TYPE_LABEL;
-		annotations[idx].value.label.to = symbols[symbol].label.to;
-		return GFXC_TYPE_LABEL;
-	case GFXC_SYMBOL_REG:
-		annotations[idx].value.shared.type = symbols[symbol].reg.regType;
-		annotations[idx].value.reg.id = symbols[symbol].reg.idx;
-		return symbols[symbol].reg.regType;
-	default: return GFXC_TYPE_NONE;
-	}
+	annotations[idx].value = symbols[symbol].value;
+	return symbols[symbol].value.shared.type;
 }
 
 void ReportError(AnalyzerState *state, const char *msg, u32 id)
