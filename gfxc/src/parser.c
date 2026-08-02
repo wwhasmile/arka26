@@ -150,6 +150,7 @@ u32 Field(ParserState *state, u32 last)
 	LexerToken idToken;
 	if (!Match(state, LEXER_TOKEN_IDENTIFIER, &idToken)) {
 		ReportError(state, "Expected field identifier");
+		return 0;
 	}
 
 	if (!Match(state, LEXER_TOKEN_COLON, NULL)) {

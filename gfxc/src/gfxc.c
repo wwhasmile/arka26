@@ -6,18 +6,17 @@
 
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src)
 {
-	u32 currentLine = 0;
-	u32 lineLength = 0;
-	const char *actualLine;
+	u32 currentLine = 1;
 	while (*src != '\0' && currentLine < line) {
-		++lineLength;
-		if (*(src++) == '\n' && ++currentLine < line) {
-			actualLine = src;
-			lineLength = 0;
-		}
+		if (*(src++) == '\n')
+			++currentLine;
 	}
+
+	u32 length;
+	for (length = 0; src[length] != '\n' && src[length] != '\0'; ++length);
+
 	fprintf(stderr, "ERROR: %s at %u:%u\n  %u %.*s\n  %u %*s^\n", message, line, column,
-		line, lineLength - 1, actualLine,
+		line, length, src,
 		line, column - 1, "");
 }
 
