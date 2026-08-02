@@ -199,11 +199,16 @@ typedef enum {
 	GFXC_SYMBOL_ENUM_COUNT
 } GfxcSymbolType;
 
+typedef struct {
+	GfxcSymbolType type;
+	u32 idLength;
+	const char *id;
+} GfxcSymbolShared;
+
 typedef union {
+	GfxcSymbolShared shared;
 	struct {
-		GfxcSymbolType type;
-		const char *id;
-		u32 idLength;
+		GfxcSymbolShared shared;
 		GfxcType constantType;
 		union {
 			u32 texture;
@@ -218,32 +223,24 @@ typedef union {
 		} value;
 	} constant;
 	struct {
-		GfxcSymbolType type;
-		u32 idLength;
-		const char *id;
+		GfxcSymbolShared shared;
 		u32 numId;
 	} texture;
 	struct {
-		GfxcSymbolType type;
-		u32 idLength;
-		const char *id;
+		GfxcSymbolShared shared;
 		u32 numId;
 	} region;
 	struct {
-		GfxcSymbolType type;
-		u32 idLength;
-		const char *id;
+		GfxcSymbolShared shared;
 		u32 numId;
 	} script;
 	struct {
-		GfxcSymbolType type;
+		GfxcSymbolShared shared;
 		GfxcType regType;
-		const char *id;
-		u32 idLength;
 		i32 idx;
 	} reg;
 	struct {
-		GfxcSymbolType type;
+		GfxcSymbolShared shared;
 	} label;
 } GfxcSymbol;
 
@@ -261,6 +258,8 @@ typedef struct {
 } GfxcInstruction;
 
 GfxcAstNode *GFXC_Parse(const char *src);
+
+GfxcAstAnnotation *GFXC_Analyze(const GfxcAstNode *ast);
 
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src);
 
