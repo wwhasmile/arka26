@@ -35,11 +35,12 @@ void *Stack_Push(void *stack, const void *src, u32 *idx)
 		free(ptr);
 		ptr = newPtr;
 		ptr->capacity = capacity;
+		stack = ptr + 1;
 	}
-	memcpy((u8*)stack + ptr->elemSize * ptr->count, src, ptr->elemSize);
+	memcpy((u8*)stack + ptr->elemSize * ptr->count++, src, ptr->elemSize);
 	if (idx != NULL)
-		*idx = ptr->count++;
-	return ptr + 1;
+		*idx = ptr->count - 1;
+	return stack;
 }
 
 bool Stack_Pop(void *stack, void *dest)
