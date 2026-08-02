@@ -175,6 +175,7 @@ void Texture(AnalyzerState *state, u32 idx)
 				ReportError(state, "Texture height only accepts integers", i + 1);
 			continue;
 		}
+		ReportError(state, "Invalid texture attribute", i);
 	}
 
 	if (!foundPath)
@@ -260,6 +261,7 @@ void Region(AnalyzerState *state, u32 idx)
 					i + 1);
 			continue;
 		}
+		ReportError(state, "Invalid region attribute", i);
 	}
 
 	if (!foundTexture)
