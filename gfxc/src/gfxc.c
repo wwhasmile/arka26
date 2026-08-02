@@ -114,6 +114,8 @@ int main(int argc, char **argv)
 	}
 	ShowTree(ast, 0);
 
+	GFXC_Analyze(ast);
+
 	return 0;
 }
 
