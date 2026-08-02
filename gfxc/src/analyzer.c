@@ -44,6 +44,7 @@ static GfxcType ResolveType(AnalyzerState *state, u32 idx);
 
 static void BuildRootSymbolTable(AnalyzerState *state);
 static void Texture(AnalyzerState *state, u32 idx);
+static void Region(AnalyzerState *state, u32 idx);
 
 void Root(AnalyzerState *state)
 {
@@ -54,6 +55,9 @@ void Root(AnalyzerState *state)
 		switch (ast[i].type) {
 		case GFXC_AST_NODE_TEXTURE:
 			Texture(state, i);
+			break;
+		case GFXC_AST_NODE_REGION:
+			Region(state, i);
 			break;
 		default: break; // Shouldn't get here in normal circumstances
 		}
@@ -175,6 +179,91 @@ void Texture(AnalyzerState *state, u32 idx)
 
 	if (!foundPath)
 		ReportError(state, "Texture always expects path", idx);
+}
+
+void Region(AnalyzerState *state, u32 idx)
+{
+	bool foundTexture = false;
+	bool foundX = false;
+	bool foundY = false;
+	bool foundWidth = false;
+	bool foundHeight = false;
+
+	const GfxcAstNode *ast = state->ast;
+	GfxcAstAnnotation *annotations = state->astAnnotations;
+	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
+		if (CheckFieldName(state, i, "texture")) {
+			if (foundTexture) {
+				ReportError(state, "Region texture has already been defined", i);
+				continue;
+			}
+			foundTexture = true;
+			annotations[i].regionKey.field = GFXC_REGION_FIELD_TEXTURE;
+
+			if (ResolveType(state, i + 1) != GFXC_TYPE_TEXTURE)
+				ReportError(state, "Invalid region texture", i + 1);
+			continue;
+		}
+		if (CheckFieldName(state, i, "x")) {
+			if (foundX) {
+				ReportError(state, "Region X has already been defined", i);
+				continue;
+			}
+			foundX = true;
+			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
+
+			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
+				ReportError(state,
+					"Region X only accepts floating point values",
+					i + 1);
+			continue;
+		}
+		if (CheckFieldName(state, i, "y")) {
+			if (foundY) {
+				ReportError(state, "Region Y has already been defined", i);
+				continue;
+			}
+			foundY = true;
+			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
+
+			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
+				ReportError(state,
+					"Region Y only accepts floating point values",
+					i + 1);
+			continue;
+		}
+		if (CheckFieldName(state, i, "width")) {
+			if (foundWidth) {
+				ReportError(state, "Region width has already been defined", i);
+				continue;
+			}
+			foundWidth = true;
+			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
+
+			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
+				ReportError(state,
+					"Region width only accepts floating point values",
+					i + 1);
+			continue;
+		}
+		if (CheckFieldName(state, i, "height")) {
+			if (foundHeight) {
+				ReportError(state, "Region width has already been defined", i);
+				continue;
+			}
+			foundHeight = true;
+			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
+
+			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
+				ReportError(state,
+					"Region width only accepts floating point values",
+					i + 1);
+			continue;
+		}
+	}
+
+	if (!foundTexture)
+		ReportError(state, "Region always expects a texture", idx);
 }
 
 bool IsSymbol(const AnalyzerState *state, const char *id, u32 idLength, u32 *symbol)
