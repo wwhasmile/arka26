@@ -15,9 +15,9 @@ typedef enum {
 	GFXC_AST_NODE_FIELD,
 
 	GFXC_AST_NODE_SCRIPT,
+	GFXC_AST_NODE_INSTRUCTION,
 	GFXC_AST_NODE_LABEL,
 	GFXC_AST_NODE_TIME_LABEL,
-	GFXC_AST_NODE_INSTRUCTION,
 	GFXC_AST_NODE_REGION_REGISTER,
 	GFXC_AST_NODE_INT_REGISTER,
 	GFXC_AST_NODE_FLOAT_REGISTER,
@@ -65,6 +65,10 @@ typedef struct {
 		struct {
 			const char *id;
 			u32 idLength;
+		} instruction;
+		struct {
+			const char *id;
+			u32 idLength;
 		} label;
 		struct {
 			f32 offset;
@@ -108,7 +112,8 @@ typedef enum {
 
 	GFXC_TYPE_INT = 1 << 7,
 	GFXC_TYPE_BOOL = 1 << 8,
-	GFXC_TYPE_FLOAT = GFXC_TYPE_INT | (1 << 9),
+	GFXC_TYPE_FLOAT = 1 << 9,
+	GFXC_TYPE_NUMBER = GFXC_TYPE_INT | GFXC_TYPE_FLOAT,
 
 	GFXC_TYPE_LABEL = 1 << 10,
 
@@ -210,9 +215,10 @@ typedef struct {
 
 typedef struct {
 	const char *name;
+	u32 nameLength;
 	u32 id;
 	u32 argc;
-	GfxcType *argt;
+	const GfxcType *argt;
 } GfxcInstruction;
 
 GfxcAstNode *GFXC_Parse(const char *src);

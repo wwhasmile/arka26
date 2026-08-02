@@ -20,67 +20,6 @@ void GFXC_Error(const char *message, u32 line, u32 column, const char *src)
 		line, column - 1, "");
 }
 
-void ShowTree(GfxcAstNode *ast, u32 idx)
-{
-	while (true) {
-		if (ast[idx].type == GFXC_AST_NODE_HEAD) {
-			idx = 1;
-			continue;
-		}
-		if (ast[idx].type == GFXC_AST_NODE_TEXTURE) {
-			printf("Beginning texture %.*s with these params:\n", ast[idx].data.texture.idLength, ast[idx].data.texture.id);
-			ShowTree(ast, idx + 1);
-			printf("End of texture definition\n");
-		} else if (ast[idx].type == GFXC_AST_NODE_REGION) {
-			printf("Beginning region %.*s with these params:\n", ast[idx].data.region.idLength, ast[idx].data.region.id);
-			ShowTree(ast, idx + 1);
-			printf("End of region definition\n");
-		} else if (ast[idx].type == GFXC_AST_NODE_SCRIPT) {
-			printf("Beginning script %.*s:\n", ast[idx].data.script.idLength, ast[idx].data.script.id);
-			ShowTree(ast, idx + 1);
-			printf("End of script definition\n");
-		} else if (ast[idx].type == GFXC_AST_NODE_LABEL) {
-			printf("Label %.*s\n", ast[idx].data.label.idLength, ast[idx].data.label.id);
-		} else if (ast[idx].type == GFXC_AST_NODE_TIME_LABEL) {
-			if (ast[idx].data.timeLabel.relative)
-				printf("Time label: +%f\n", ast[idx].data.timeLabel.offset);
-			else
-				printf("Time label: %f\n", ast[idx].data.timeLabel.offset);
-		} else if (ast[idx].type == GFXC_AST_NODE_INSTRUCTION) {
-			printf("Instruction %.*s, operands: ", ast[idx].data.identifier.idLength, ast[idx].data.identifier.id);
-			ShowTree(ast, idx + 1);
-			printf("\n");
-		} else if (ast[idx].type == GFXC_AST_NODE_IDENTIFIER) {
-			printf("%.*s", ast[idx].data.identifier.idLength, ast[idx].data.identifier.id);
-			if (ast[idx].next != 0)
-				printf(", ");
-		} else if (ast[idx].type == GFXC_AST_NODE_FIELD) {
-			printf("%.*s : ", ast[idx].data.field.idLength, ast[idx].data.field.id);
-			ShowTree(ast, idx + 1);
-			printf("\n");
-		} else if (ast[idx].type == GFXC_AST_NODE_HEX_LITERAL) {
-			printf("0x%X", ast[idx].data.hexLiteral.value);
-			if (ast[idx].next != 0)
-				printf(", ");
-		} else if (ast[idx].type == GFXC_AST_NODE_INT_LITERAL) {
-			printf("%d", ast[idx].data.intLiteral.value);
-			if (ast[idx].next != 0)
-				printf(", ");
-		} else if (ast[idx].type == GFXC_AST_NODE_FLOAT_LITERAL) {
-			printf("%f", ast[idx].data.floatLiteral.value);
-			if (ast[idx].next != 0)
-				printf(", ");
-		} else if (ast[idx].type == GFXC_AST_NODE_STRING_LITERAL) {
-			printf("\"%.*s\"", ast[idx].data.stringLiteral.dataLength, ast[idx].data.stringLiteral.data);
-			if (ast[idx].next != 0)
-				printf(", ");
-		}
-		if (ast[idx].next == 0)
-			return;
-		idx = ast[idx].next;
-	}
-}
-
 int main(int argc, char **argv)
 {
 	printf("GFXC version 0\nMade by Hasmile\n\n");
@@ -112,7 +51,6 @@ int main(int argc, char **argv)
 	if (ast == NULL) {
 		return 1;
 	}
-	ShowTree(ast, 0);
 
 	GFXC_Analyze(ast);
 
@@ -125,13 +63,78 @@ const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 		"TEXTURE_FORMAT_RGBA8",
 		sizeof("TEXTURE_FORMAT_RGBA8") - 1,
 		{
-			.integer = {
-				GFXC_TYPE_INT,
-				0
-			}
+			.integer = { GFXC_TYPE_INT, 0 }
 		}
 	},
 	{
-		0
-	}
+		"TEXTURE_FORMAT_R8",
+		sizeof("TEXTURE_FORMAT_R8") - 1,
+		{
+			.integer = { GFXC_TYPE_INT, 1 }
+		}
+	},
+
+	// Texture filtering
+	{
+		"TEXTURE_FILTER_NEAREST",
+		sizeof("TEXTURE_FILTER_NEAREST") - 1,
+		{
+			.integer = { GFXC_TYPE_INT, 0 }
+		}
+	},
+	{
+		"TEXTURE_FILTER_LINEAR",
+		sizeof("TEXTURE_FILTER_LINEAR") - 1,
+		{
+			.integer = { GFXC_TYPE_INT, 1 }
+		}
+	},
+
+	// Origin
+	{
+		"ORIGIN_OBJECT",
+		sizeof("ORIGIN_OBJECT") - 1,
+		{
+			.integer = { GFXC_TYPE_INT, 0 }
+		}
+	},
+	{
+		"ORIGIN_SURFACE",
+		sizeof("ORIGIN_SURFACE") - 1,
+		{
+			.integer = { GFXC_TYPE_INT, 1 }
+		}
+	},
+	{
+		"ORIGIN_PARENT",
+		sizeof("ORIGIN_PARENT") - 1,
+		{
+			.integer = { GFXC_TYPE_INT, 2 }
+		}
+	},
+
+	// General purpose registers
+	{ "R0", sizeof("R0") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 0 } } },
+	{ "R1", sizeof("R1") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 1 } } },
+	{ "R2", sizeof("R2") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 2 } } },
+	{ "R3", sizeof("R3") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 3 } } },
+	{ "R4", sizeof("R4") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 4 } } },
+	{ "R5", sizeof("R5") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 5 } } },
+	{ "R6", sizeof("R6") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 6 } } },
+	{ "R7", sizeof("R7") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 7 } } },
+
+	// Tail, for bounds checking
+	{ 0 }
+};
+
+static const GfxcType GFXC_ISET_ARGT[] = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_INT, GFXC_TYPE_INT };
+static const GfxcType GFXC_FSET_ARGT[] = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT };
+static const GfxcType GFXC_JMP_ARGT[] = { GFXC_TYPE_LABEL };
+const GfxcInstruction GFXC_INSTRUCTIONS[] = {
+	{ "iset", sizeof("iset") - 1, 0x01, 2, GFXC_ISET_ARGT },
+	{ "fset", sizeof("fset") - 1, 0x02, 2, GFXC_FSET_ARGT },
+	{ "jmp", sizeof("jmp") - 1, 0x03, 1, GFXC_JMP_ARGT },
+
+	// Tail, for bounds checking
+	{ 0 }
 };

@@ -13,6 +13,7 @@ typedef struct {
 } AnalyzerState;
 
 extern const GfxcSymbol GFXC_DEFAULT_SYMBOLS[];
+extern const GfxcInstruction GFXC_INSTRUCTIONS[];
 
 static void ReportError(AnalyzerState *state, const char *msg, u32 id);
 
@@ -47,6 +48,7 @@ static GfxcType ResolveType(AnalyzerState *state, u32 idx);
 static void BuildRootSymbolTable(AnalyzerState *state);
 static void Texture(AnalyzerState *state, u32 idx);
 static void Region(AnalyzerState *state, u32 idx);
+static void Script(AnalyzerState *state, u32 idx);
 
 void Root(AnalyzerState *state)
 {
@@ -60,6 +62,9 @@ void Root(AnalyzerState *state)
 			break;
 		case GFXC_AST_NODE_REGION:
 			Region(state, i);
+			break;
+		case GFXC_AST_NODE_SCRIPT:
+			Script(state, i);
 			break;
 		default: break; // Shouldn't get here in normal circumstances
 		}
@@ -215,9 +220,9 @@ void Region(AnalyzerState *state, u32 idx)
 			foundX = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
 
-			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
+			if ((ResolveType(state, i + 1) & GFXC_TYPE_NUMBER) == 0)
 				ReportError(state,
-					"Region X only accepts floating point values",
+					"Region X only accepts numbers",
 					i + 1);
 			continue;
 		}
@@ -229,9 +234,9 @@ void Region(AnalyzerState *state, u32 idx)
 			foundY = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_Y;
 
-			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
+			if ((ResolveType(state, i + 1) & GFXC_TYPE_NUMBER) == 0)
 				ReportError(state,
-					"Region Y only accepts floating point values",
+					"Region Y only accepts numbers",
 					i + 1);
 			continue;
 		}
@@ -243,9 +248,9 @@ void Region(AnalyzerState *state, u32 idx)
 			foundWidth = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_WIDTH;
 
-			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
+			if ((ResolveType(state, i + 1) & GFXC_TYPE_NUMBER) == 0)
 				ReportError(state,
-					"Region width only accepts floating point values",
+					"Region width only accepts numbers",
 					i + 1);
 			continue;
 		}
@@ -257,9 +262,9 @@ void Region(AnalyzerState *state, u32 idx)
 			foundHeight = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_HEIGHT;
 
-			if ((ResolveType(state, i + 1) & GFXC_TYPE_FLOAT) == 0)
+			if ((ResolveType(state, i + 1) & GFXC_TYPE_NUMBER) == 0)
 				ReportError(state,
-					"Region height only accepts floating point values",
+					"Region height only accepts numbers",
 					i + 1);
 			continue;
 		}
@@ -268,6 +273,123 @@ void Region(AnalyzerState *state, u32 idx)
 
 	if (!foundTexture)
 		ReportError(state, "Region always expects a texture", idx);
+}
+
+static void BuildScriptSymbolTable(AnalyzerState *state, u32 idx);
+static void Instuction(AnalyzerState *state, u32 idx);
+
+void Script(AnalyzerState *state, u32 idx)
+{
+	u32 symbolResetMarker = Stack_Count(state->symbols);
+	BuildScriptSymbolTable(state, idx);
+
+	const GfxcAstNode *ast = state->ast;
+	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
+		if (ast[i].type != GFXC_AST_NODE_INSTRUCTION)
+			continue;
+		Instuction(state, i);
+	}
+
+	Stack_Reset(state->symbols, symbolResetMarker);
+}
+
+void BuildScriptSymbolTable(AnalyzerState *state, u32 idx)
+{
+	const GfxcAstNode *ast = state->ast;
+	GfxcAstAnnotation *annotations = state->astAnnotations;
+	GfxcSymbol *symbols = state->symbols;
+
+	for (u32 i = idx + 1, inst = 1; i != 0; i = ast[i].next) {
+		if (ast[i].type == GFXC_AST_NODE_INSTRUCTION) {
+			++inst;
+			continue;
+		}
+		if (ast[i].type != GFXC_AST_NODE_LABEL)
+			continue;
+		if (GetSymbol(state, ast[i].data.label.id, ast[i].data.label.idLength) != NULL) {
+			ReportError(state, "There is already a symbol with this name", i);
+			continue;
+		}
+		GfxcSymbol symbol = { 0 };
+		symbol.value.label.type = GFXC_TYPE_LABEL;
+		symbol.id = ast[i].data.label.id;
+		symbol.idLength = ast[i].data.label.idLength;
+		symbol.value.label.to = inst;
+		symbols = Stack_Push(symbols, &symbol, NULL);
+		annotations[i].value.label.to = inst;
+		annotations[i].value.label.type = GFXC_TYPE_LABEL;
+	}
+
+	state->symbols = symbols;
+}
+
+void Instuction(AnalyzerState *state, u32 idx) {
+	const GfxcAstNode *ast = state->ast;
+
+	u32 i;
+	for (i = 0; GFXC_INSTRUCTIONS[i].name != NULL; ++i) {
+		if (ast[idx].data.instruction.idLength != GFXC_INSTRUCTIONS[i].nameLength)
+			continue;
+		if (strncmp(ast[idx].data.instruction.id, GFXC_INSTRUCTIONS[i].name,
+				GFXC_INSTRUCTIONS[i].nameLength) == 0)
+			break;
+	}
+
+	const GfxcInstruction *instruction = GFXC_INSTRUCTIONS + i;
+	if (instruction->name == NULL) {
+		ReportError(state, "Instruction doesn't exist", idx);
+		return;
+	}
+
+	GfxcAstAnnotation *annotations = state->astAnnotations;
+	annotations[idx].instruction.id = instruction->id;
+
+	u32 arg = 0;
+	for (i = idx + 1; i != 0; i = ast[i].next) {
+		if (arg >= instruction->argc) {
+			ReportError(state, "Too many arguments", idx);
+			return;
+		}
+
+		GfxcType type = ResolveType(state, i);
+		GfxcType argType = instruction->argt[arg];
+		if ((argType & GFXC_TYPE_NUMBER) == GFXC_TYPE_NUMBER) {
+			if ((type & GFXC_TYPE_NUMBER) == 0)
+				ReportError(state, "Expected a number", i);
+		} else if ((argType & GFXC_TYPE_FLOAT) == GFXC_TYPE_FLOAT) {
+			if ((type & GFXC_TYPE_NUMBER) == 0 )
+				ReportError(state, "Expected a floating point", i);
+		} else if ((argType & GFXC_TYPE_INT) == GFXC_TYPE_INT) {
+			if ((type & GFXC_TYPE_INT) != GFXC_TYPE_INT)
+				ReportError(state, "Expected an integer", i);
+		} else if ((argType & GFXC_TYPE_HEX) == GFXC_TYPE_HEX) {
+			if ((type & GFXC_TYPE_HEX) == 0)
+				ReportError(state, "Expected a hexadecimal", i);
+		} else if ((argType & GFXC_TYPE_BOOL) == GFXC_TYPE_BOOL) {
+			if ((type & GFXC_TYPE_BOOL) == 0)
+				ReportError(state, "Expected a boolean", i);
+		} else if ((argType & GFXC_TYPE_TEXTURE) == GFXC_TYPE_TEXTURE) {
+			if ((type & GFXC_TYPE_TEXTURE) == 0)
+				ReportError(state, "Expected a texture", i);
+		} else if ((argType & GFXC_TYPE_REGION) == GFXC_TYPE_REGION) {
+			if ((type & GFXC_TYPE_REGION) == 0)
+				ReportError(state, "Expected a region", i);
+		} else if ((argType & GFXC_TYPE_SCRIPT) == GFXC_TYPE_SCRIPT) {
+			if ((type & GFXC_TYPE_SCRIPT) == 0)
+				ReportError(state, "Expected a script", i);
+		} else if ((argType & GFXC_TYPE_LABEL) == GFXC_TYPE_LABEL) {
+			if ((type & GFXC_TYPE_LABEL) == 0)
+				ReportError(state, "Expected a label", i);
+		}
+		if ((argType & GFXC_TYPE_RW_REGISTER) == GFXC_TYPE_RW_REGISTER) {
+			if ((type & GFXC_TYPE_RW_REGISTER) != GFXC_TYPE_RW_REGISTER)
+				ReportError(state, "Expected a writeable register", i);
+		} else if ((argType & GFXC_TYPE_R_REGISTER) == GFXC_TYPE_R_REGISTER) {
+			if ((type & GFXC_TYPE_R_REGISTER) == 0)
+				ReportError(state, "Expected a register", i);
+		}
+		arg++;
+	}
 }
 
 const GfxcSymbol *GetSymbol(const AnalyzerState *state, const char *id, u32 idLength)
