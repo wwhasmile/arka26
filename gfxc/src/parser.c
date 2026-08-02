@@ -241,6 +241,14 @@ u32 Value(ParserState *state, u32 last)
 
 	switch (state->token.type) {
 	case LEXER_TOKEN_IDENTIFIER:
+		if (IsKeyword(state, "true")) {
+			id = Bool(state, true, last);
+			break;
+		}
+		if (IsKeyword(state, "false")) {
+			id = Bool(state, false, last);
+			break;
+		}
 		id = Identifier(state, last);
 		break;
 	case LEXER_TOKEN_HEX_LITERAL:
@@ -268,14 +276,6 @@ u32 Value(ParserState *state, u32 last)
 		id = String(state, last);
 		break;
 	default:
-		if (IsKeyword(state, "true")) {
-			id = Bool(state, true, last);
-			break;
-		}
-		if (IsKeyword(state, "false")) {
-			id = Bool(state, false, last);
-			break;
-		}
 		ReportError(state, "Expected a valid value");
 		return 0;
 	}
@@ -322,8 +322,8 @@ u32 String(ParserState *state, u32 last)
 
 u32 Bool(ParserState *state, bool value, u32 last)
 {
-	u32 id = Push(state, GFXC_AST_NODE_INT_LITERAL, last);
-	state->ast[id].data.intLiteral.value = value;
+	u32 id = Push(state, GFXC_AST_NODE_BOOL_LITERAL, last);
+	state->ast[id].data.boolLiteral.value = value;
 	return id;
 }
 

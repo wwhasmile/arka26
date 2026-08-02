@@ -24,6 +24,7 @@ typedef enum {
 
 	GFXC_AST_NODE_IDENTIFIER,
 	GFXC_AST_NODE_INT_LITERAL,
+	GFXC_AST_NODE_BOOL_LITERAL,
 	GFXC_AST_NODE_FLOAT_LITERAL,
 	GFXC_AST_NODE_HEX_LITERAL,
 	GFXC_AST_NODE_STRING_LITERAL,
@@ -72,22 +73,13 @@ typedef struct {
 		struct {
 			const char *id;
 			u32 idLength;
-		} regionRegister;
-		struct {
-			const char *id;
-			u32 idLength;
-		} intRegister;
-		struct {
-			const char *id;
-			u32 idLength;
-		} floatRegister;
-		struct {
-			const char *id;
-			u32 idLength;
 		} identifier;
 		struct {
 			i32 value;
 		} intLiteral;
+		struct {
+			bool value;
+		} boolLiteral;
 		struct {
 			f32 value;
 		} floatLiteral;
@@ -115,14 +107,60 @@ typedef enum {
 	GFXC_TYPE_STRING = 1 << 6,
 
 	GFXC_TYPE_INT = 1 << 7,
-	GFXC_TYPE_FLOAT = 1 << 8,
+	GFXC_TYPE_BOOL = 1 << 8,
+	GFXC_TYPE_FLOAT = GFXC_TYPE_INT | (1 << 9),
 
-	GFXC_TYPE_LABEL = 1 << 9,
-
-	GFXC_TYPE_NUMBER = GFXC_TYPE_INT | GFXC_TYPE_FLOAT,
+	GFXC_TYPE_LABEL = 1 << 10,
 
 	GFXC_TYPE_ENUM_COUNT
 } GfxcType;
+
+typedef union {
+	struct {
+		GfxcType type;
+	} shared;
+	struct {
+		GfxcType type;
+		u32 id;
+	} texture;
+	struct {
+		GfxcType type;
+		u32 id;
+	} region;
+	struct {
+		GfxcType type;
+		u32 id;
+	} script;
+	struct {
+		GfxcType type;
+		u32 id;
+	} reg;
+	struct {
+		GfxcType type;
+		u32 value;
+	} hex;
+	struct {
+		GfxcType type;
+		i32 value;
+	} integer;
+	struct {
+		GfxcType type;
+		bool value;
+	} boolv;
+	struct {
+		GfxcType type;
+		f32 value;
+	} floatv;
+	struct {
+		GfxcType type;
+		u32 to;
+	} label;
+	struct {
+		GfxcType type;
+		u32 dataLength;
+		const char *data;
+	} str;
+} GfxcValue;
 
 typedef enum {
 	GFXC_TEXTURE_FIELD_PATH,
@@ -149,9 +187,6 @@ typedef union {
 	struct {
 		GfxcTextureField field;
 	} textureKey;
-	struct {
-		GfxcType type;
-	} textureValue;
 	struct region {
 		u32 id;
 	} region;
@@ -159,33 +194,12 @@ typedef union {
 		GfxcRegionField field;
 	} regionKey;
 	struct {
-		GfxcType type;
-		union {
-			struct {
-				u32 id;
-			} texture;
-		} data;
-	} regionValue;
-	struct {
 		u32 id;
 	} script;
 	struct {
 		u32 id;
 	} instruction;
-	struct {
-		GfxcType type;
-		union {
-			struct {
-				u32 id;
-			} region;
-			struct {
-				u32 id;
-			} script;
-			struct {
-				u32 to;
-			} label;
-		} data;
-	} operand;
+	GfxcValue value;
 } GfxcAstAnnotation;
 
 typedef enum {
@@ -209,18 +223,7 @@ typedef union {
 	GfxcSymbolShared shared;
 	struct {
 		GfxcSymbolShared shared;
-		GfxcType constantType;
-		union {
-			u32 texture;
-			u32 region;
-			u32 script;
-			i32 integer;
-			f32 floatv;
-			struct {
-				u32 length;
-				const char *data;
-			} str;
-		} value;
+		GfxcValue value;
 	} constant;
 	struct {
 		GfxcSymbolShared shared;
@@ -241,14 +244,9 @@ typedef union {
 	} reg;
 	struct {
 		GfxcSymbolShared shared;
+		u32 to;
 	} label;
 } GfxcSymbol;
-
-typedef struct {
-	const char *name;
-	i32 id;
-	GfxcType type;
-} GfxcRegister;
 
 typedef struct {
 	const char *name;
@@ -262,8 +260,5 @@ GfxcAstNode *GFXC_Parse(const char *src);
 GfxcAstAnnotation *GFXC_Analyze(const GfxcAstNode *ast);
 
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src);
-
-extern const GfxcRegister GFXC_REGISTERS[];
-extern const GfxcInstruction GFXC_INSTRUCTIONS[];
 
 #endif // GFXC_H
