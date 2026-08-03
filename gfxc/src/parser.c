@@ -153,17 +153,17 @@ u32 Field(ParserState *state, u32 last)
 		return 0;
 	}
 
-	if (!Match(state, LEXER_TOKEN_COLON, NULL)) {
-		ReportError(state, "Expected ':'");
-		return 0;
-	}
-
 	u32 id = Push(state, GFXC_AST_NODE_FIELD, last);
 	state->ast[id].data.field.idLength = idToken.length;
 	state->ast[id].data.field.id = idToken.lexeme;
 
 	u32 valueId = Value(state, 0);
 	if (valueId == 0) {
+		return 0;
+	}
+
+	if (!Match(state, LEXER_TOKEN_SEMICOLON, &idToken)) {
+		ReportError(state, "Expected ;");
 		return 0;
 	}
 
@@ -203,12 +203,15 @@ u32 IdentifierStatement(ParserState *state, u32 last)
 	}
 
 	state->ast[id].type = GFXC_AST_NODE_INSTRUCTION;
-
 	u32 valueId = 0;
 	while (true) {
 		valueId = Value(state, valueId);
-		if (!Match(state, LEXER_TOKEN_COMMA, NULL))
+		if (Match(state, LEXER_TOKEN_SEMICOLON, NULL))
 			break;
+		if (!Match(state, LEXER_TOKEN_COMMA, NULL)) {
+			ReportError(state, "Expected comma after operand, or semicolon if it's end of instruction");
+			return 0;
+		}
 	}
 
 	return id;
