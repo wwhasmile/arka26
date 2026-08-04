@@ -25,23 +25,28 @@ void *Stack_InitCapacity(u32 elemSize, u32 capacity)
 
 extern inline void *Stack_Init(u32 elemSize);
 
-void *Stack_Push(void *stack, const void *src, u32 *idx)
+void *Stack_PushBulk(void *stack, const void *src, u32 count, u32 *idx)
 {
 	Stack *ptr = (Stack*)stack - 1;
-	if (ptr->count == ptr->capacity) {
-		u32 capacity = ptr->capacity * 2;
+	if (ptr->count + count > ptr->capacity) {
+		u32 capacity = ptr->capacity;
+		while (ptr->count + count > capacity)
+			capacity *= 2;
 		Stack *newPtr = malloc(sizeof(Stack) + ptr->elemSize * capacity);
-		memcpy(newPtr, ptr, sizeof(Stack) + ptr->elemSize * capacity / 2);
+		memcpy(newPtr, ptr, sizeof(Stack) + ptr->elemSize * ptr->count);
 		free(ptr);
 		ptr = newPtr;
 		ptr->capacity = capacity;
 		stack = ptr + 1;
 	}
-	memcpy((u8*)stack + ptr->elemSize * ptr->count++, src, ptr->elemSize);
+	memcpy((u8*)stack + ptr->elemSize * ptr->count, src, ptr->elemSize * count);
 	if (idx != NULL)
-		*idx = ptr->count - 1;
+		*idx = ptr->count;
+	ptr->count += count;
 	return stack;
 }
+
+extern inline void *Stack_Push(void *stack, const void *src, u32 *idx);
 
 bool Stack_Pop(void *stack, void *dest)
 {

@@ -14,7 +14,12 @@ inline void *Stack_Init(u32 elemSize)
 	return Stack_InitCapacity(elemSize, STACK_DEFAULT_CAPACITY);
 }
 
-void *Stack_Push(void *stack, const void *src, u32 *idx);
+void *Stack_PushBulk(void *stack, const void *src, u32 count, u32 *idx);
+
+inline void *Stack_Push(void *stack, const void *src, u32 *idx)
+{
+	return Stack_PushBulk(stack, src, 1, idx);
+}
 
 bool Stack_Pop(void *stack, void *dest);
 
