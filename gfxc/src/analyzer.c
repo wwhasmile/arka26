@@ -157,6 +157,8 @@ void Region(AnalyzerState *state, u32 idx)
 	for (u32 i = 0; i < ARRAY_LENGTH(GFXC_REGION_ATTRIBUTES); ++i) {
 		if (GFXC_REGION_ATTRIBUTES[i].mandatory && !found[i])
 			ReportError(state, GFXC_REGION_REQUIRED_MESSAGE[i], idx);
+		else if (!found[i])
+			state->astAnnotations[i].attributeValue.data = GFXC_REGION_ATTRIBUTES[i].value;
 	}
 }
 
@@ -250,7 +252,7 @@ void Instuction(AnalyzerState *state, u32 idx) {
 		ReportError(state, "Instruction doesn't exist", idx);
 		return;
 	}
-	state->astAnnotations[idx].instruction.opcode = instruction->opcode;
+	state->astAnnotations[idx].instruction.opcode = i;
 
 	u32 argi = 0;
 	for (i = idx + 1; i != 0; i = ast[i].next) {
@@ -324,15 +326,18 @@ bool MatchType(AnalyzerState *state, u32 idx, GfxcType expected)
 	state->astAnnotations[idx].value.argt = expected;
 	state->astAnnotations[idx].value.data = value;
 	switch (expected) {
-	case GFXC_TYPE_FLOAT:
-		return value.shared.type == GFXC_TYPE_FLOAT ||
-			value.shared.type == GFXC_TYPE_INT ||
-			value.shared.type == GFXC_TYPE_FLOAT_REGISTER;
 	case GFXC_TYPE_INT:
 		return value.shared.type == GFXC_TYPE_INT ||
 			value.shared.type == GFXC_TYPE_HEX ||
 			value.shared.type == GFXC_TYPE_BOOL ||
 			value.shared.type == GFXC_TYPE_INT_REGISTER;
+	case GFXC_TYPE_BOOL:
+			return value.shared.type == GFXC_TYPE_BOOL ||
+				value.shared.type == GFXC_TYPE_INT_REGISTER;
+	case GFXC_TYPE_FLOAT:
+			return value.shared.type == GFXC_TYPE_FLOAT ||
+				value.shared.type == GFXC_TYPE_INT ||
+				value.shared.type == GFXC_TYPE_FLOAT_REGISTER;
 	default: return value.shared.type == expected;
 	}
 }

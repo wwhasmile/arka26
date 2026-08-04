@@ -219,7 +219,6 @@ typedef struct {
 typedef struct {
 	const char *name;
 	u32 nameLength;
-	u16 opcode;
 	u16 argc;
 	GfxcType argt[10];
 } GfxcInstruction;
@@ -230,6 +229,12 @@ typedef struct {
 	bool mandatory;
 	GfxcValue value;
 } GfxcAttribute;
+
+typedef struct {
+	u32 magic;
+	u32 version;
+	u32 start;
+} GfxcBytecodeHeader;
 
 GfxcAstNode *GFXC_Parse(const char *src);
 
