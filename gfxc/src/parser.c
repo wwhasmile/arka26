@@ -99,8 +99,8 @@ u32 DataDeclaration(ParserState *state, GfxcAstNodeType type, u32 last)
 		ReportError(state, "Expected data block identifier");
 		return 0;
 	}
-	state->ast[id].data.decl.idLength = idToken.length;
-	state->ast[id].data.decl.id = idToken.lexeme;
+	state->ast[id].data.attrSet.idLength = idToken.length;
+	state->ast[id].data.attrSet.id = idToken.lexeme;
 
 	u32 fieldId = 0;
 	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_END_BLOCK_KEYWORD)) {
@@ -128,8 +128,8 @@ u32 ScriptDeclaration(ParserState *state, u32 last)
 		ReportError(state, "Expected script identifier");
 		return 0;
 	}
-	state->ast[id].data.decl.idLength = idToken.length;
-	state->ast[id].data.decl.id = idToken.lexeme;
+	state->ast[id].data.attrSet.idLength = idToken.length;
+	state->ast[id].data.attrSet.id = idToken.lexeme;
 
 	u32 statementId = 0;
 	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_END_BLOCK_KEYWORD)) {
@@ -154,8 +154,8 @@ u32 Field(ParserState *state, u32 last)
 	}
 
 	u32 id = Push(state, GFXC_AST_NODE_FIELD, last);
-	state->ast[id].data.field.idLength = idToken.length;
-	state->ast[id].data.field.id = idToken.lexeme;
+	state->ast[id].data.attr.idLength = idToken.length;
+	state->ast[id].data.attr.id = idToken.lexeme;
 
 	u32 valueId = Value(state, 0);
 	if (valueId == 0) {

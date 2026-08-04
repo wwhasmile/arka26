@@ -61,20 +61,36 @@ int main(int argc, char **argv)
 	return 0;
 }
 
+const GfxcAttribute GFXC_TEXTURE_ATTRIBUTES[] = {
+	{ "path", sizeof("path") - 1, true, { .string.type = GFXC_TYPE_STRING } },
+	{ "hasData", sizeof("hasData") - 1, false, { .boolv.type = GFXC_TYPE_BOOL, .boolv.value = true } },
+	{ "format", sizeof("format") - 1, false, { .intv.type = GFXC_TYPE_INT, .intv.value = 0 } },
+	{ "width", sizeof("width") - 1, false, { .intv.type = GFXC_TYPE_INT, .intv.value = 0 } },
+	{ "height", sizeof("height") - 1, false, { .intv.type = GFXC_TYPE_INT, .intv.value = 0 } },
+};
+
+const GfxcAttribute GFXC_REGION_ATTRIBUTES[] = {
+	{ "texture", sizeof("texture") - 1, true, { .texture.type = GFXC_TYPE_TEXTURE } },
+	{ "x", sizeof("x") - 1, false, { .floatv.type = GFXC_TYPE_FLOAT, .floatv.value = 0.0f } },
+	{ "y", sizeof("y") - 1, false, { .floatv.type = GFXC_TYPE_FLOAT, .floatv.value = 0.0f } },
+	{ "width", sizeof("width") - 1, false, { .floatv.type = GFXC_TYPE_FLOAT, .floatv.value = 0.0f } },
+	{ "height", sizeof("height") - 1, false, { .floatv.type = GFXC_TYPE_FLOAT, .floatv.value = 0.0f } },
+};
+
 const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 	// Texture formats
 	{
 		"TEXTURE_FORMAT_RGBA8",
 		sizeof("TEXTURE_FORMAT_RGBA8") - 1,
 		{
-			.integer = { GFXC_TYPE_INT, 0 }
+			.intv = { GFXC_TYPE_INT, 0 }
 		}
 	},
 	{
 		"TEXTURE_FORMAT_R8",
 		sizeof("TEXTURE_FORMAT_R8") - 1,
 		{
-			.integer = { GFXC_TYPE_INT, 1 }
+			.intv = { GFXC_TYPE_INT, 1 }
 		}
 	},
 
@@ -83,14 +99,14 @@ const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 		"TEXTURE_FILTER_NEAREST",
 		sizeof("TEXTURE_FILTER_NEAREST") - 1,
 		{
-			.integer = { GFXC_TYPE_INT, 0 }
+			.intv = { GFXC_TYPE_INT, 0 }
 		}
 	},
 	{
 		"TEXTURE_FILTER_LINEAR",
 		sizeof("TEXTURE_FILTER_LINEAR") - 1,
 		{
-			.integer = { GFXC_TYPE_INT, 1 }
+			.intv = { GFXC_TYPE_INT, 1 }
 		}
 	},
 
@@ -99,21 +115,21 @@ const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 		"ORIGIN_OBJECT",
 		sizeof("ORIGIN_OBJECT") - 1,
 		{
-			.integer = { GFXC_TYPE_INT, 0 }
+			.intv = { GFXC_TYPE_INT, 0 }
 		}
 	},
 	{
 		"ORIGIN_SURFACE",
 		sizeof("ORIGIN_SURFACE") - 1,
 		{
-			.integer = { GFXC_TYPE_INT, 1 }
+			.intv = { GFXC_TYPE_INT, 1 }
 		}
 	},
 	{
 		"ORIGIN_PARENT",
 		sizeof("ORIGIN_PARENT") - 1,
 		{
-			.integer = { GFXC_TYPE_INT, 2 }
+			.intv = { GFXC_TYPE_INT, 2 }
 		}
 	},
 

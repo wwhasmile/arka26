@@ -50,11 +50,11 @@ typedef struct {
 		struct {
 			const char *id;
 			u32 idLength;
-		} decl;
+		} attrSet;
 		struct {
 			const char *id;
 			u32 idLength;
-		} field;
+		} attr;
 		struct {
 			const char *id;
 			u32 idLength;
@@ -142,7 +142,7 @@ typedef union {
 	struct {
 		GfxcType type;
 		i32 value;
-	} integer;
+	} intv;
 	struct {
 		GfxcType type;
 		bool value;
@@ -159,7 +159,7 @@ typedef union {
 		GfxcType type;
 		u32 dataLength;
 		const char *data;
-	} str;
+	} string;
 } GfxcValue;
 
 typedef enum {
@@ -198,9 +198,16 @@ typedef union {
 	} script;
 	struct {
 		u16 opcode;
-		u16 argm;
 	} instruction;
-	GfxcValue value;
+	struct {
+		GfxcType argt;
+		GfxcValue data;
+	} value;
+	struct {
+		GfxcType argt;
+		GfxcValue data;
+		u32 id;
+	} attributeValue;
 } GfxcAstAnnotation;
 
 typedef struct {
@@ -212,10 +219,17 @@ typedef struct {
 typedef struct {
 	const char *name;
 	u32 nameLength;
-	u32 opcode;
-	u32 argc;
+	u16 opcode;
+	u16 argc;
 	GfxcType argt[10];
 } GfxcInstruction;
+
+typedef struct {
+	const char *id;
+	u32 idLength;
+	bool mandatory;
+	GfxcValue value;
+} GfxcAttribute;
 
 GfxcAstNode *GFXC_Parse(const char *src);
 
