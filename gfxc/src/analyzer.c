@@ -43,7 +43,7 @@ GfxcAstAnnotation *GFXC_Analyze(const GfxcAstNode *ast)
 
 static const GfxcSymbol *GetSymbol(const AnalyzerState *state, const char *id, u32 idLength);
 static bool CheckFieldName(const AnalyzerState *state, u32 idx, const char *id);
-static GfxcType ResolveType(AnalyzerState *state, u32 idx);
+static bool MatchType(AnalyzerState *state, u32 idx, GfxcType expected, GfxcType *type);
 
 static void BuildRootSymbolTable(AnalyzerState *state);
 static void Texture(AnalyzerState *state, u32 idx);
@@ -128,7 +128,7 @@ void Texture(AnalyzerState *state, u32 idx)
 			foundPath = true;
 			annotations[i].textureKey.field = GFXC_TEXTURE_FIELD_PATH;
 
-			if (ResolveType(state, i + 1) != GFXC_TYPE_STRING)
+			if (!MatchType(state, i + 1, GFXC_TYPE_STRING, NULL))
 				ReportError(state, "Texture's path only accepts string", i + 1);
 			continue;
 		}
@@ -140,10 +140,8 @@ void Texture(AnalyzerState *state, u32 idx)
 			foundHasData = true;
 			annotations[i].textureKey.field = GFXC_TEXTURE_FIELD_HAS_DATA;
 
-			if (ResolveType(state, i + 1) != GFXC_TYPE_BOOL)
-				ReportError(state,
-					"Texture's hasData only accepts true or false",
-					i + 1);
+			if (!MatchType(state, i + 1, GFXC_TYPE_BOOL, NULL))
+				ReportError(state, "Texture's hasData only accepts booleans", i + 1);
 			continue;
 		}
 		if (CheckFieldName(state, i, "format")) {
@@ -154,7 +152,7 @@ void Texture(AnalyzerState *state, u32 idx)
 			foundFormat = true;
 			annotations[i].textureKey.field = GFXC_TEXTURE_FIELD_FORMAT;
 
-			if (ResolveType(state, i + 1) != GFXC_TYPE_INT)
+			if (!MatchType(state, i + 1, GFXC_TYPE_INT, NULL))
 				ReportError(state, "Texture format only accepts integers", i + 1);
 			continue;
 		}
@@ -166,7 +164,7 @@ void Texture(AnalyzerState *state, u32 idx)
 			foundWidth = true;
 			annotations[i].textureKey.field = GFXC_TEXTURE_FIELD_WIDTH;
 
-			if (ResolveType(state, i + 1) != GFXC_TYPE_INT)
+			if (!MatchType(state, i + 1, GFXC_TYPE_INT, NULL))
 				ReportError(state, "Texture width only accepts integers", i + 1);
 			continue;
 		}
@@ -178,7 +176,7 @@ void Texture(AnalyzerState *state, u32 idx)
 			foundHeight = true;
 			annotations[i].textureKey.field = GFXC_TEXTURE_FIELD_HEIGHT;
 
-			if (ResolveType(state, i + 1) != GFXC_TYPE_INT)
+			if (!MatchType(state, i + 1, GFXC_TYPE_INT, NULL))
 				ReportError(state, "Texture height only accepts integers", i + 1);
 			continue;
 		}
@@ -208,7 +206,7 @@ void Region(AnalyzerState *state, u32 idx)
 			foundTexture = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_TEXTURE;
 
-			if (ResolveType(state, i + 1) != GFXC_TYPE_TEXTURE)
+			if (!MatchType(state, i + 1, GFXC_TYPE_TEXTURE, NULL))
 				ReportError(state, "Invalid region texture", i + 1);
 			continue;
 		}
@@ -220,10 +218,8 @@ void Region(AnalyzerState *state, u32 idx)
 			foundX = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_X;
 
-			if ((ResolveType(state, i + 1) & GFXC_TYPE_NUMBER) == 0)
-				ReportError(state,
-					"Region X only accepts numbers",
-					i + 1);
+			if (!MatchType(state, i + 1, GFXC_TYPE_FLOAT, NULL))
+				ReportError(state, "Region X only accepts floats", i + 1);
 			continue;
 		}
 		if (CheckFieldName(state, i, "y")) {
@@ -234,10 +230,8 @@ void Region(AnalyzerState *state, u32 idx)
 			foundY = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_Y;
 
-			if ((ResolveType(state, i + 1) & GFXC_TYPE_NUMBER) == 0)
-				ReportError(state,
-					"Region Y only accepts numbers",
-					i + 1);
+			if (!MatchType(state, i + 1, GFXC_TYPE_FLOAT, NULL))
+				ReportError(state, "Region Y only accepts floats", i + 1);
 			continue;
 		}
 		if (CheckFieldName(state, i, "width")) {
@@ -248,10 +242,8 @@ void Region(AnalyzerState *state, u32 idx)
 			foundWidth = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_WIDTH;
 
-			if ((ResolveType(state, i + 1) & GFXC_TYPE_NUMBER) == 0)
-				ReportError(state,
-					"Region width only accepts numbers",
-					i + 1);
+			if (!MatchType(state, i + 1, GFXC_TYPE_FLOAT, NULL))
+				ReportError(state, "Region width only accepts floats", i + 1);
 			continue;
 		}
 		if (CheckFieldName(state, i, "height")) {
@@ -262,10 +254,8 @@ void Region(AnalyzerState *state, u32 idx)
 			foundHeight = true;
 			annotations[i].regionKey.field = GFXC_REGION_FIELD_HEIGHT;
 
-			if ((ResolveType(state, i + 1) & GFXC_TYPE_NUMBER) == 0)
-				ReportError(state,
-					"Region height only accepts numbers",
-					i + 1);
+			if (!MatchType(state, i + 1, GFXC_TYPE_FLOAT, NULL))
+				ReportError(state, "Region height only accepts floats", i + 1);
 			continue;
 		}
 		ReportError(state, "Invalid region attribute", i);
@@ -342,53 +332,76 @@ void Instuction(AnalyzerState *state, u32 idx) {
 	}
 
 	GfxcAstAnnotation *annotations = state->astAnnotations;
-	annotations[idx].instruction.id = instruction->id;
+	annotations[idx].instruction.opcode = instruction->opcode;
+	annotations[idx].instruction.argm = 0;
 
-	u32 arg = 0;
+	u32 argi = 0;
 	for (i = idx + 1; i != 0; i = ast[i].next) {
-		if (arg >= instruction->argc) {
+		if (argi >= instruction->argc) {
 			ReportError(state, "Too many arguments", idx);
 			return;
 		}
 
-		GfxcType type = ResolveType(state, i);
-		GfxcType argType = instruction->argt[arg];
-		if ((argType & GFXC_TYPE_NUMBER) == GFXC_TYPE_NUMBER) {
-			if ((type & GFXC_TYPE_NUMBER) == 0)
-				ReportError(state, "Expected a number", i);
-		} else if ((argType & GFXC_TYPE_FLOAT) == GFXC_TYPE_FLOAT) {
-			if ((type & GFXC_TYPE_NUMBER) == 0 )
-				ReportError(state, "Expected a floating point", i);
-		} else if ((argType & GFXC_TYPE_INT) == GFXC_TYPE_INT) {
-			if ((type & GFXC_TYPE_INT) != GFXC_TYPE_INT)
-				ReportError(state, "Expected an integer", i);
-		} else if ((argType & GFXC_TYPE_HEX) == GFXC_TYPE_HEX) {
-			if ((type & GFXC_TYPE_HEX) == 0)
-				ReportError(state, "Expected a hexadecimal", i);
-		} else if ((argType & GFXC_TYPE_BOOL) == GFXC_TYPE_BOOL) {
-			if ((type & GFXC_TYPE_BOOL) == 0)
-				ReportError(state, "Expected a boolean", i);
-		} else if ((argType & GFXC_TYPE_TEXTURE) == GFXC_TYPE_TEXTURE) {
-			if ((type & GFXC_TYPE_TEXTURE) == 0)
-				ReportError(state, "Expected a texture", i);
-		} else if ((argType & GFXC_TYPE_REGION) == GFXC_TYPE_REGION) {
-			if ((type & GFXC_TYPE_REGION) == 0)
+		GfxcType argt = instruction->argt[argi];
+		GfxcType actualArgt;
+		bool typeMatches = MatchType(state, i, argt, &actualArgt);
+		switch (argt) {
+		case GFXC_TYPE_REGION:
+			if (!typeMatches)
 				ReportError(state, "Expected a region", i);
-		} else if ((argType & GFXC_TYPE_SCRIPT) == GFXC_TYPE_SCRIPT) {
-			if ((type & GFXC_TYPE_SCRIPT) == 0)
+			break;
+		case GFXC_TYPE_SCRIPT:
+			if (!typeMatches)
 				ReportError(state, "Expected a script", i);
-		} else if ((argType & GFXC_TYPE_LABEL) == GFXC_TYPE_LABEL) {
-			if ((type & GFXC_TYPE_LABEL) == 0)
+			break;
+		case GFXC_TYPE_HEX:
+			if (typeMatches) {
+				if (actualArgt == GFXC_TYPE_INT_REGISTER)
+					annotations[idx].instruction.argm |= (1 << argi);
+			} else {
+				ReportError(state, "Expected a hexadecimal", i);
+			}
+			break;
+		case GFXC_TYPE_INT:
+			if (typeMatches) {
+				if (actualArgt == GFXC_TYPE_INT_REGISTER)
+					annotations[idx].instruction.argm |= (1 << argi);
+			} else {
+				ReportError(state, "Expected an integer", i);
+			}
+			break;
+		case GFXC_TYPE_BOOL:
+			if (typeMatches) {
+				if (actualArgt == GFXC_TYPE_INT_REGISTER)
+					annotations[idx].instruction.argm |= (1 << argi);
+			} else {
+				ReportError(state, "Expected a boolean", i);
+			}
+			break;
+		case GFXC_TYPE_FLOAT:
+			if (typeMatches) {
+				if (actualArgt == GFXC_TYPE_INT_REGISTER)
+					annotations[idx].instruction.argm |= (1 << argi);
+			} else {
+				ReportError(state, "Expected a float", i);
+			}
+			break;
+		case GFXC_TYPE_LABEL:
+			if (!typeMatches)
 				ReportError(state, "Expected a label", i);
+			break;
+		case GFXC_TYPE_INT_REGISTER:
+			if (!typeMatches)
+				ReportError(state, "Expected an integer register x[0,7]", i);
+			break;
+		case GFXC_TYPE_FLOAT_REGISTER:
+			if (!typeMatches)
+				ReportError(state, "Expected a float register f[0,7]", i);
+			break;
+		default: ReportError(state, "Unsupported argument", i);
 		}
-		if ((argType & GFXC_TYPE_RW_REGISTER) == GFXC_TYPE_RW_REGISTER) {
-			if ((type & GFXC_TYPE_RW_REGISTER) != GFXC_TYPE_RW_REGISTER)
-				ReportError(state, "Expected a writeable register", i);
-		} else if ((argType & GFXC_TYPE_R_REGISTER) == GFXC_TYPE_R_REGISTER) {
-			if ((type & GFXC_TYPE_R_REGISTER) == 0)
-				ReportError(state, "Expected a register", i);
-		}
-		arg++;
+
+		argi++;
 	}
 }
 
@@ -423,51 +436,69 @@ bool CheckFieldName(const AnalyzerState *state, u32 idx, const char *id)
 	return strncmp(id, ast[idx].data.field.id, ast[idx].data.field.idLength) == 0;
 }
 
-static GfxcType ResolveIdentifier(AnalyzerState *state, u32 idx);
+static void ResolveIdentifier(AnalyzerState *state, u32 idx);
 
-GfxcType ResolveType(AnalyzerState *state, u32 idx)
+bool MatchType(AnalyzerState *state, u32 idx, GfxcType expected, GfxcType *type)
 {
 	const GfxcAstNode *ast = state->ast;
 	GfxcAstAnnotation *annotations = state->astAnnotations;
 
 	switch (ast[idx].type) {
 	case GFXC_AST_NODE_IDENTIFIER:
-		return ResolveIdentifier(state, idx);
+		ResolveIdentifier(state, idx);
+		break;
 	case GFXC_AST_NODE_INT_LITERAL:
 		annotations[idx].value.shared.type = GFXC_TYPE_INT;
 		annotations[idx].value.integer.value = ast[idx].data.intLiteral.value;
-		return GFXC_TYPE_INT;
+		break;
 	case GFXC_AST_NODE_BOOL_LITERAL:
 		annotations[idx].value.shared.type = GFXC_TYPE_BOOL;
 		annotations[idx].value.boolv.value = ast[idx].data.boolLiteral.value;
-		return GFXC_TYPE_BOOL;
+		break;
 	case GFXC_AST_NODE_FLOAT_LITERAL:
 		annotations[idx].value.shared.type = GFXC_TYPE_FLOAT;
 		annotations[idx].value.floatv.value = ast[idx].data.floatLiteral.value;
-		return GFXC_TYPE_FLOAT;
+		break;
 	case GFXC_AST_NODE_HEX_LITERAL:
 		annotations[idx].value.shared.type = GFXC_TYPE_HEX;
 		annotations[idx].value.hex.value = ast[idx].data.hexLiteral.value;
-		return GFXC_TYPE_HEX;
+		break;
 	case GFXC_AST_NODE_STRING_LITERAL:
 		annotations[idx].value.shared.type = GFXC_TYPE_STRING;
 		annotations[idx].value.str.data = ast[idx].data.stringLiteral.data;
 		annotations[idx].value.str.dataLength = ast[idx].data.stringLiteral.dataLength;
-		return GFXC_TYPE_STRING;
-	default: return GFXC_TYPE_NONE;
+		break;
+	default: return false;
+	}
+
+	if (type != NULL)
+		*type = annotations[idx].value.shared.type;
+
+	switch (expected) {
+	case GFXC_TYPE_FLOAT:
+		if (annotations[idx].value.shared.type == GFXC_TYPE_INT ||
+			annotations[idx].value.shared.type == GFXC_TYPE_FLOAT_REGISTER)
+			return true;
+		/* fallthrough */
+	case GFXC_TYPE_INT:
+		if (annotations[idx].value.shared.type == GFXC_TYPE_HEX ||
+			annotations[idx].value.shared.type == GFXC_TYPE_BOOL ||
+			annotations[idx].value.shared.type == GFXC_TYPE_INT_REGISTER)
+			return true;
+		/* fallthrough */
+	default: return annotations[idx].value.shared.type == expected;
 	}
 }
 
-GfxcType ResolveIdentifier(AnalyzerState *state, u32 idx)
+void ResolveIdentifier(AnalyzerState *state, u32 idx)
 {
 	const GfxcAstNode *ast = state->ast;
 	GfxcAstAnnotation *annotations = state->astAnnotations;
 
 	const GfxcSymbol *symbol = GetSymbol(state, ast[idx].data.identifier.id, ast[idx].data.identifier.idLength);
 	if (symbol == NULL)
-		return GFXC_TYPE_NONE;
+		return;
 	annotations[idx].value = symbol->value;
-	return symbol->value.shared.type;
 }
 
 void ReportError(AnalyzerState *state, const char *msg, u32 id)

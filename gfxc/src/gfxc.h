@@ -97,22 +97,19 @@ typedef struct {
 typedef enum {
 	GFXC_TYPE_NONE,
 
-	GFXC_TYPE_R_REGISTER = 1 << 0,
-	GFXC_TYPE_RW_REGISTER = GFXC_TYPE_R_REGISTER | (1 << 1),
+	GFXC_TYPE_TEXTURE,
+	GFXC_TYPE_REGION,
+	GFXC_TYPE_SCRIPT,
 
-	GFXC_TYPE_TEXTURE = 1 << 2,
-	GFXC_TYPE_REGION = 1 << 3,
-	GFXC_TYPE_SCRIPT = 1 << 4,
+	GFXC_TYPE_HEX,
+	GFXC_TYPE_INT,
+	GFXC_TYPE_BOOL,
+	GFXC_TYPE_FLOAT,
 
-	GFXC_TYPE_HEX = 1 << 5,
-	GFXC_TYPE_STRING = 1 << 6,
-
-	GFXC_TYPE_INT = 1 << 7,
-	GFXC_TYPE_BOOL = 1 << 8,
-	GFXC_TYPE_FLOAT = 1 << 9,
-	GFXC_TYPE_NUMBER = GFXC_TYPE_INT | GFXC_TYPE_FLOAT,
-
-	GFXC_TYPE_LABEL = 1 << 10,
+	GFXC_TYPE_LABEL,
+	GFXC_TYPE_INT_REGISTER,
+	GFXC_TYPE_FLOAT_REGISTER,
+	GFXC_TYPE_STRING,
 
 	GFXC_TYPE_ENUM_COUNT
 } GfxcType;
@@ -120,6 +117,7 @@ typedef enum {
 typedef union {
 	struct {
 		GfxcType type;
+		u32 bytes;
 	} shared;
 	struct {
 		GfxcType type;
@@ -199,7 +197,8 @@ typedef union {
 		u32 id;
 	} script;
 	struct {
-		u32 id;
+		u16 opcode;
+		u16 argm;
 	} instruction;
 	GfxcValue value;
 } GfxcAstAnnotation;
@@ -213,9 +212,9 @@ typedef struct {
 typedef struct {
 	const char *name;
 	u32 nameLength;
-	u32 id;
+	u32 opcode;
 	u32 argc;
-	const GfxcType *argt;
+	GfxcType argt[10];
 } GfxcInstruction;
 
 GfxcAstNode *GFXC_Parse(const char *src);

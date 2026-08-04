@@ -117,27 +117,78 @@ const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 		}
 	},
 
-	// General purpose registers
-	{ "R0", sizeof("R0") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 0 } } },
-	{ "R1", sizeof("R1") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 1 } } },
-	{ "R2", sizeof("R2") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 2 } } },
-	{ "R3", sizeof("R3") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 3 } } },
-	{ "R4", sizeof("R4") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 4 } } },
-	{ "R5", sizeof("R5") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 5 } } },
-	{ "R6", sizeof("R6") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 6 } } },
-	{ "R7", sizeof("R7") - 1, { .reg = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_NUMBER, 7 } } },
+	// Registers
+	{ "x0", sizeof("x0") - 1, { .reg = { GFXC_TYPE_INT_REGISTER, 0 } } },
+	{ "x1", sizeof("x1") - 1, { .reg = { GFXC_TYPE_INT_REGISTER, 1 } } },
+	{ "x2", sizeof("x2") - 1, { .reg = { GFXC_TYPE_INT_REGISTER, 2 } } },
+	{ "x3", sizeof("x3") - 1, { .reg = { GFXC_TYPE_INT_REGISTER, 3 } } },
+	{ "x4", sizeof("x4") - 1, { .reg = { GFXC_TYPE_INT_REGISTER, 4 } } },
+	{ "x5", sizeof("x5") - 1, { .reg = { GFXC_TYPE_INT_REGISTER, 5 } } },
+	{ "x6", sizeof("x6") - 1, { .reg = { GFXC_TYPE_INT_REGISTER, 6 } } },
+	{ "x7", sizeof("x7") - 1, { .reg = { GFXC_TYPE_INT_REGISTER, 7 } } },
+	{ "f0", sizeof("f0") - 1, { .reg = { GFXC_TYPE_FLOAT_REGISTER, 0 } } },
+	{ "f1", sizeof("f1") - 1, { .reg = { GFXC_TYPE_FLOAT_REGISTER, 1 } } },
+	{ "f2", sizeof("f2") - 1, { .reg = { GFXC_TYPE_FLOAT_REGISTER, 2 } } },
+	{ "f3", sizeof("f3") - 1, { .reg = { GFXC_TYPE_FLOAT_REGISTER, 3 } } },
+	{ "f4", sizeof("f4") - 1, { .reg = { GFXC_TYPE_FLOAT_REGISTER, 4 } } },
+	{ "f5", sizeof("f5") - 1, { .reg = { GFXC_TYPE_FLOAT_REGISTER, 5 } } },
+	{ "f6", sizeof("f6") - 1, { .reg = { GFXC_TYPE_FLOAT_REGISTER, 6 } } },
+	{ "f7", sizeof("f7") - 1, { .reg = { GFXC_TYPE_FLOAT_REGISTER, 7 } } },
 
 	// Tail, for bounds checking
 	{ 0 }
 };
 
-static const GfxcType GFXC_ISET_ARGT[] = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_INT, GFXC_TYPE_INT };
-static const GfxcType GFXC_FSET_ARGT[] = { GFXC_TYPE_RW_REGISTER | GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT };
-static const GfxcType GFXC_JMP_ARGT[] = { GFXC_TYPE_LABEL };
 const GfxcInstruction GFXC_INSTRUCTIONS[] = {
-	{ "iset", sizeof("iset") - 1, 0x01, 2, GFXC_ISET_ARGT },
-	{ "fset", sizeof("fset") - 1, 0x02, 2, GFXC_FSET_ARGT },
-	{ "jmp", sizeof("jmp") - 1, 0x03, 1, GFXC_JMP_ARGT },
+	{ "nop", sizeof("nop") - 1, 0x00, 0, { 0 } },
+
+	{ "set", sizeof("set") - 1, 0x01, 2, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT } },
+	{ "add", sizeof("add") - 1, 0x02, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "sub", sizeof("sub") - 1, 0x03, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "xor", sizeof("xor") - 1, 0x04, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "or", sizeof("or") - 1, 0x05, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "and", sizeof("and") - 1, 0x06, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "sl", sizeof("sl") - 1, 0x07, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "sr", sizeof("sr") - 1, 0x08, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "mul", sizeof("mul") - 1, 0x09, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "div", sizeof("div") - 1, 0x0A, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+	{ "rem", sizeof("rem") - 1, 0x0B, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+
+	{ "setr", sizeof("setr") - 1, 0x0C, 2, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_INT } },
+
+	{ "beq", sizeof("beq") - 1, 0x0D, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "bne", sizeof("bne") - 1, 0x0E, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "blt", sizeof("blt") - 1, 0x0F, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "ble", sizeof("ble") - 1, 0x10, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "bgt", sizeof("bgt") - 1, 0x11, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "bge", sizeof("bge") - 1, 0x12, 3, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_INT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+
+	{ "fset", sizeof("fset") - 1, 0x13, 2, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT } },
+	{ "fadd", sizeof("fadd") - 1, 0x14, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
+	{ "fsub", sizeof("fsub") - 1, 0x15, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
+	{ "fmul", sizeof("fmul") - 1, 0x16, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
+	{ "fdiv", sizeof("fdiv") - 1, 0x17, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
+	{ "fmod", sizeof("fmod") - 1, 0x19, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
+
+	{ "fsetr", sizeof("fsetr") - 1, 0x1A, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
+
+	{ "fcfi", sizeof("fcfi") - 1, 0x1B, 2, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_INT_REGISTER } },
+	{ "fc2i", sizeof("fc2i") - 1, 0x1C, 2, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_FLOAT_REGISTER } },
+
+	{ "fsin", sizeof("fsin") - 1, 0x1D, 2, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT } },
+	{ "fasin", sizeof("fasin") - 1, 0x1E, 2, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT } },
+	{ "fcos", sizeof("fcos") - 1, 0x1F, 2, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT } },
+	{ "facos", sizeof("facos") - 1, 0x20, 2, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT } },
+	{ "ftan", sizeof("ftan") - 1, 0x20, 2, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT } },
+	{ "fatan", sizeof("fatan") - 1, 0x21, 2, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT } },
+	{ "fatan2", sizeof("fatan2") - 1, 0x22, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
+
+	{ "fbeq", sizeof("fbeq") - 1, 0x23, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "fbne", sizeof("fbne") - 1, 0x24, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "fblt", sizeof("fblt") - 1, 0x25, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "fble", sizeof("fble") - 1, 0x26, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "fbgt", sizeof("fbgt") - 1, 0x27, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
+	{ "fbge", sizeof("fbge") - 1, 0x28, 3, { GFXC_TYPE_FLOAT_REGISTER, GFXC_TYPE_FLOAT, GFXC_TYPE_LABEL, GFXC_TYPE_FLOAT } },
 
 	// Tail, for bounds checking
 	{ 0 }
