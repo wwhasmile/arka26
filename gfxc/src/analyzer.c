@@ -46,7 +46,7 @@ GfxcAstAnnotation *GFXC_Analyze(const GfxcAstNode *ast)
 {
 	AnalyzerState state = {
 		ast,
-		malloc(Stack_Count(ast) * sizeof(GfxcAstAnnotation)),
+		calloc(Stack_Count(ast), sizeof(GfxcAstAnnotation)),
 		Stack_InitCapacity(sizeof(GfxcSymbol), 16),
 		false
 	};
@@ -143,6 +143,8 @@ void Texture(AnalyzerState *state, u32 idx)
 	for (u32 i = 0; i < ARRAY_LENGTH(GFXC_TEXTURE_ATTRIBUTES); ++i) {
 		if (GFXC_TEXTURE_ATTRIBUTES[i].mandatory && !found[i])
 			ReportError(state, GFXC_TEXTURE_REQUIRED_MESSAGE[i], idx);
+		else if (!found[i])
+			state->astAnnotations[idx + 1 + i].attributeValue.data = GFXC_TEXTURE_ATTRIBUTES[i].value;
 	}
 }
 
@@ -158,7 +160,7 @@ void Region(AnalyzerState *state, u32 idx)
 		if (GFXC_REGION_ATTRIBUTES[i].mandatory && !found[i])
 			ReportError(state, GFXC_REGION_REQUIRED_MESSAGE[i], idx);
 		else if (!found[i])
-			state->astAnnotations[i].attributeValue.data = GFXC_REGION_ATTRIBUTES[i].value;
+			state->astAnnotations[idx + 1 + i].attributeValue.data = GFXC_REGION_ATTRIBUTES[i].value;
 	}
 }
 
@@ -363,37 +365,33 @@ GfxcValue ResolveIdentifier(AnalyzerState *state, u32 idx)
 
 inline GfxcValue ResolveInteger(AnalyzerState *state, u32 idx)
 {
-	GfxcValue result = {
-		.intv.type = GFXC_TYPE_INT,
-		.intv.value = state->ast[idx].data.intLiteral.value,
-	};
+	GfxcValue result = { 0 };
+	result.intv.type = GFXC_TYPE_INT;
+	result.intv.value = state->ast[idx].data.intLiteral.value;
 	return result;
 }
 
 inline GfxcValue ResolveBool(AnalyzerState *state, u32 idx)
 {
-	GfxcValue result = {
-		.boolv.type = GFXC_TYPE_BOOL,
-		.boolv.value = state->ast[idx].data.boolLiteral.value,
-	};
+	GfxcValue result = { 0 };
+	result.boolv.type = GFXC_TYPE_BOOL;
+	result.boolv.value = state->ast[idx].data.boolLiteral.value;
 	return result;
 }
 
 inline GfxcValue ResolveFloat(AnalyzerState *state, u32 idx)
 {
-	GfxcValue result = {
-		.floatv.type = GFXC_TYPE_FLOAT,
-		.floatv.value = state->ast[idx].data.floatLiteral.value,
-	};
+	GfxcValue result = { 0 };
+	result.floatv.type = GFXC_TYPE_FLOAT;
+	result.floatv.value = state->ast[idx].data.floatLiteral.value;
 	return result;
 }
 
 inline GfxcValue ResolveHex(AnalyzerState *state, u32 idx)
 {
-	GfxcValue result = {
-		.hex.type = GFXC_TYPE_HEX,
-		.hex.value = state->ast[idx].data.hexLiteral.value,
-	};
+	GfxcValue result = { 0 };
+	result.hex.type = GFXC_TYPE_HEX;
+	result.hex.value = state->ast[idx].data.hexLiteral.value;
 	return result;
 }
 

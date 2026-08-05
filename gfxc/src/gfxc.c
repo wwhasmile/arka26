@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 	}
 
 	u8 *bytecode = GFXC_Generate(ast, annotations);
-	fwrite(bytecode, Stack_Count(bytecode), 1, output);
+	fwrite(bytecode, 1, Stack_Count(bytecode), output);
 	fclose(output);
 
 	Stack_Release(bytecode);
