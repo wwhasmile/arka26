@@ -18,7 +18,7 @@ void *Stack_InitCapacity(u32 elemSize, u32 capacity)
 		0,
 		0
 	};
-	Stack *ptr = malloc(sizeof(Stack) + elemSize * capacity);
+	Stack *ptr = calloc(sizeof(Stack) + elemSize * capacity, 1);
 	*ptr = result;
 	return ptr + 1;
 }
@@ -32,7 +32,7 @@ void *Stack_PushBulk(void *stack, const void *src, u32 count, u32 *idx)
 		u32 capacity = ptr->capacity;
 		while (ptr->count + count > capacity)
 			capacity *= 2;
-		Stack *newPtr = malloc(sizeof(Stack) + ptr->elemSize * capacity);
+		Stack *newPtr = calloc(sizeof(Stack) + ptr->elemSize * capacity, 1);
 		memcpy(newPtr, ptr, sizeof(Stack) + ptr->elemSize * ptr->count);
 		free(ptr);
 		ptr = newPtr;
