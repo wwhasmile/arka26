@@ -237,11 +237,18 @@ typedef struct {
 	u32 start;
 } GfxcBytecodeHeader;
 
+extern const GfxcAttribute GFXC_TEXTURE_ATTRIBUTES[5];
+extern const GfxcAttribute GFXC_REGION_ATTRIBUTES[5];
+extern const GfxcSymbol GFXC_DEFAULT_SYMBOLS[];
+extern const GfxcInstruction GFXC_INSTRUCTIONS[];
+
 GfxcAstNode *GFXC_Parse(const char *src);
 
 GfxcAstAnnotation *GFXC_Analyze(const GfxcAstNode *ast);
 
 u8 *GFXC_Generate(const GfxcAstNode *ast, const GfxcAstAnnotation *annotations);
+
+void GFXC_Dump(const u8 *bytecode, u32 size);
 
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src);
 

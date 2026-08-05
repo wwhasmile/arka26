@@ -33,11 +33,6 @@ static const char *GFXC_REGION_REQUIRED_MESSAGE[] = {
 	"Texture id for is required for any region",
 };
 
-extern const GfxcAttribute GFXC_TEXTURE_ATTRIBUTES[5];
-extern const GfxcAttribute GFXC_REGION_ATTRIBUTES[5];
-extern const GfxcSymbol GFXC_DEFAULT_SYMBOLS[];
-extern const GfxcInstruction GFXC_INSTRUCTIONS[];
-
 static void ReportError(AnalyzerState *state, const char *msg, u32 id);
 
 static void Root(AnalyzerState *state);
