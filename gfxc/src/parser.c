@@ -205,6 +205,8 @@ u32 IdentifierStatement(ParserState *state, u32 last)
 	state->ast[id].type = GFXC_AST_NODE_INSTRUCTION;
 	u32 valueId = 0;
 	while (true) {
+		if (Match(state, LEXER_TOKEN_SEMICOLON, NULL))
+			break;
 		valueId = Value(state, valueId);
 		if (Match(state, LEXER_TOKEN_SEMICOLON, NULL))
 			break;

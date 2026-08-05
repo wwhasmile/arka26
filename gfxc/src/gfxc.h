@@ -197,6 +197,7 @@ typedef union {
 		u32 id;
 	} script;
 	struct {
+		u32 id;
 		u16 opcode;
 	} instruction;
 	struct {
@@ -239,6 +240,8 @@ typedef struct {
 GfxcAstNode *GFXC_Parse(const char *src);
 
 GfxcAstAnnotation *GFXC_Analyze(const GfxcAstNode *ast);
+
+u8 *GFXC_Generate(const GfxcAstNode *ast, const GfxcAstAnnotation *annotations);
 
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src);
 
