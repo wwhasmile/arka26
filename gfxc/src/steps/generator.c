@@ -24,7 +24,7 @@ u8 *GFXC_Generate(const GfxcAstNode *ast, const GfxcAstAnnotation *annotations)
 
 	GfxcBytecodeHeader header = {
 		0x00584647,
-		0,
+		0x00000001,
 		0
 	};
 	state.bytecode = Stack_PushBulk(state.bytecode, &header, sizeof(header), NULL);

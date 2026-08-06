@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 {
 	if (argc < 3)
 	{
-		printf("GFXC version 0\nMade by Hasmile\n\n");
+		printf("GFXC version 1\nMade by Hasmile\n\n");
 		printf("Usage:\ngfxc input_file output_file");
 		return 0;
 	}
