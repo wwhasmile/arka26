@@ -1,6 +1,6 @@
 #include <gfxc.h>
 
-#include <stack.h>
+#include <core/stack.h>
 
 #include <stdio.h>
 #include <stdlib.h>

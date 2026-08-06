@@ -1,7 +1,7 @@
 #ifndef GFXC_H
 #define GFXC_H
 
-#include <defines.h>
+#include <core/defines.h>
 
 typedef enum {
 	GFXC_AST_NODE_NONE,

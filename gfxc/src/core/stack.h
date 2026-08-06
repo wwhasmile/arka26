@@ -1,7 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <defines.h>
+#include <core/defines.h>
 
 #ifndef STACK_DEFAULT_CAPACITY
 #define STACK_DEFAULT_CAPACITY 8
