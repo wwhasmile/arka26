@@ -22,8 +22,8 @@ static const char *GFXC_INVALID_TYPE_MESSAGES[] = {
 	"Expected a boolean (true or false)",
 	"Expected a float",
 	"Expected a jump label",
-	"Expected an int register x[0,7]",
-	"Expected a float register f[0,7]",
+	"Expected an int register x[0,31]",
+	"Expected a float register f[0,31]",
 	"Expected a string",
 };
 static const char *GFXC_TEXTURE_REQUIRED_MESSAGE[] = {

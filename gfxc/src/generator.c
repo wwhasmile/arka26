@@ -139,7 +139,7 @@ void EmitAttrSet(GeneratorState *state, u32 idx)
 	EmitString(state, ast[idx].data.attrSet.id, ast[idx].data.attrSet.idLength);
 
 	u32 count = 0;
-	u32 start;
+	u32 start = 0;
 	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
 		++count;
 		if (state->annotations[i + 1].attributeValue.id == 0)
