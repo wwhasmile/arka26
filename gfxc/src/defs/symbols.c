@@ -447,7 +447,7 @@ const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 
 	// Cull
 	{
-		"CUL_BACK",
+		"CULL_BACK",
 		sizeof("CULL_BACK") - 1,
 		{
 			.intv = { GFXC_TYPE_INT, 0 }
@@ -498,21 +498,21 @@ const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 		}
 	},
 	{
-		"INTERPOLATION_EASE_IN_QUAD",
+		"INTERPOLATION_EASE_IN_CUBIC",
 		sizeof("INTERPOLATION_EASE_IN_CUBIC") - 1,
 		{
 			.intv = { GFXC_TYPE_INT, 4 }
 		}
 	},
 	{
-		"INTERPOLATION_EASE_OUT_QUAD",
+		"INTERPOLATION_EASE_OUT_CUBIC",
 		sizeof("INTERPOLATION_EASE_OUT_CUBIC") - 1,
 		{
 			.intv = { GFXC_TYPE_INT, 5 }
 		}
 	},
 	{
-		"INTERPOLATION_EASE_IN_OUT_QUAD",
+		"INTERPOLATION_EASE_IN_OUT_CUBIC",
 		sizeof("INTERPOLATION_EASE_IN_OUT_CUBIC") - 1,
 		{
 			.intv = { GFXC_TYPE_INT, 6 }
