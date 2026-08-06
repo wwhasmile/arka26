@@ -94,11 +94,20 @@ const GfxcAttribute GFXC_REGION_ATTRIBUTES[] = {
 	{ "texture", sizeof("texture") - 1, true, { .texture.type = GFXC_TYPE_TEXTURE } },
 	{ "x", sizeof("x") - 1, false, { .floatv.type = GFXC_TYPE_FLOAT, .floatv.value = 0.0f } },
 	{ "y", sizeof("y") - 1, false, { .floatv.type = GFXC_TYPE_FLOAT, .floatv.value = 0.0f } },
-	{ "width", sizeof("width") - 1, false, { .floatv.type = GFXC_TYPE_FLOAT, .floatv.value = 0.0f } },
-	{ "height", sizeof("height") - 1, false, { .floatv.type = GFXC_TYPE_FLOAT, .floatv.value = 0.0f } },
+	{ "width", sizeof("width") - 1, true, { .floatv.type = GFXC_TYPE_FLOAT } },
+	{ "height", sizeof("height") - 1, true, { .floatv.type = GFXC_TYPE_FLOAT } },
 };
 
 const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
+	// To denote an region that is default during VM launch - the region that doesn't exist
+	{
+		"REGION_NONE",
+		sizeof("REGION_NONE") - 1,
+		{
+			.region = { GFXC_TYPE_REGION, 0 }
+		}
+	},
+
 	// Math constants
 	{
 		"M_PI",

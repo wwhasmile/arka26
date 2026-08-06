@@ -23,7 +23,7 @@ u8 *GFXC_Generate(const GfxcAstNode *ast, const GfxcAstAnnotation *annotations)
 	};
 
 	GfxcBytecodeHeader header = {
-		0x43584647,
+		0x00584647,
 		0,
 		0
 	};
@@ -34,14 +34,15 @@ u8 *GFXC_Generate(const GfxcAstNode *ast, const GfxcAstAnnotation *annotations)
 	return state.bytecode;
 }
 
-static void EmitValue(GeneratorState *state, u32 idx, bool *isRegister);
+static u32 Value(GeneratorState *state, u32 idx, bool *isRegister);
 
 static bool FindString(GeneratorState *state, const char *data, u32 dataLength, u32 *offset);
 static void EmitString(GeneratorState *state, const char *data, u32 dataLength);
 
 static void Strings(GeneratorState *state);
 
-static void AttrSets(GeneratorState *state, GfxcAstNodeType type);
+static void Textures(GeneratorState *state);
+static void Regions(GeneratorState *state);
 
 static void Scripts(GeneratorState *state);
 
@@ -49,9 +50,8 @@ void Root(GeneratorState *state)
 {
 	Strings(state);
 
-	AttrSets(state, GFXC_AST_NODE_TEXTURE);
-	AttrSets(state, GFXC_AST_NODE_REGION);
-
+	Textures(state);
+	Regions(state);
 	Scripts(state);
 }
 
@@ -117,41 +117,70 @@ void EmitString(GeneratorState *state, const char *data, u32 dataLength)
 	state->bytecode = Stack_PushBulk(state->bytecode, &padding, aligned - dataLength, NULL);
 }
 
-static void EmitAttrSet(GeneratorState *state, u32 idx);
+static void EmitTexture(GeneratorState *state, u32 idx);
 
-void AttrSets(GeneratorState *state, GfxcAstNodeType type)
+void Textures(GeneratorState *state)
 {
 	u32 idx = 0;
 	state->bytecode = Stack_PushBulk(state->bytecode, &idx, sizeof(u32), &idx);
 
 	for (u32 i = 1; i != 0; i = state->ast[i].next) {
-		if (state->ast[i].type != type)
+		if (state->ast[i].type != GFXC_AST_NODE_TEXTURE)
 			continue;
-		EmitAttrSet(state, i);
+		EmitTexture(state, i);
 		++*(u32*)(state->bytecode + idx);
 	}
 }
 
-void EmitAttrSet(GeneratorState *state, u32 idx)
+void EmitTexture(GeneratorState *state, u32 idx)
 {
 	const GfxcAstNode *ast = state->ast;
 
-	u32 count = 0;
-	u32 start = 0;
-	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
-		++count;
-		if (state->annotations[i + 1].attributeValue.id == 0)
-			start = i;
+	u32 bytes[ARRAY_LENGTH(GFXC_TEXTURE_ATTRIBUTES)] = { 0 };
+
+	for (u32 i = 0; i < ARRAY_LENGTH(GFXC_TEXTURE_ATTRIBUTES); ++i) {
+		bytes[i] = GFXC_TEXTURE_ATTRIBUTES[i].value.shared.bytes;
 	}
 
-	for (u32 i = start, j = 0; j < count; i = ast[i].next) {
-		if (i == 0)
-			i = idx + 1;
-		if (state->annotations[i + 1].attributeValue.id == j) {
-			++j;
-			EmitValue(state, i + 1, NULL);
-		}
+	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
+		u32 attri = state->annotations[i + 1].attributeValue.id;
+		bytes[attri] = Value(state, i + 1, NULL);
 	}
+
+	state->bytecode = Stack_PushBulk(state->bytecode, bytes, sizeof(bytes), NULL);
+}
+
+static void EmitRegion(GeneratorState *state, u32 idx);
+
+void Regions(GeneratorState *state)
+{
+	u32 idx = 0;
+	state->bytecode = Stack_PushBulk(state->bytecode, &idx, sizeof(u32), &idx);
+
+	for (u32 i = 1; i != 0; i = state->ast[i].next) {
+		if (state->ast[i].type != GFXC_AST_NODE_REGION)
+			continue;
+		EmitRegion(state, i);
+		++*(u32*)(state->bytecode + idx);
+	}
+}
+
+void EmitRegion(GeneratorState *state, u32 idx)
+{
+	const GfxcAstNode *ast = state->ast;
+
+	u32 bytes[ARRAY_LENGTH(GFXC_REGION_ATTRIBUTES)] = { 0 };
+
+	for (u32 i = 0; i < ARRAY_LENGTH(GFXC_REGION_ATTRIBUTES); ++i) {
+		bytes[i] = GFXC_REGION_ATTRIBUTES[i].value.shared.bytes;
+	}
+
+	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
+		u32 attri = state->annotations[i + 1].attributeValue.id;
+		bytes[attri] = Value(state, i + 1, NULL);
+	}
+
+	state->bytecode = Stack_PushBulk(state->bytecode, bytes, sizeof(bytes), NULL);
 }
 
 static void EmitScript(GeneratorState *state, u32 idx);
@@ -213,7 +242,8 @@ void EmitInstruction(GeneratorState *state, u32 idx, f32 time)
 
 	for (u32 i = idx + 1, j = 0; i != 0; i = state->ast[i].next, ++j) {
 		bool isRegister;
-		EmitValue(state, i, &isRegister);
+		u32 bytes = Value(state, i, &isRegister);
+		state->bytecode = Stack_PushBulk(state->bytecode, &bytes, sizeof(u32), NULL);
 
 		if (isRegister)
 			*((u16*)(state->bytecode + maskIdx)) |= (1 << j);
@@ -222,7 +252,7 @@ void EmitInstruction(GeneratorState *state, u32 idx, f32 time)
 
 static u32 ResolveLabel(GeneratorState *state, u32 idx);
 
-void EmitValue(GeneratorState *state, u32 idx, bool *isRegister)
+u32 Value(GeneratorState *state, u32 idx, bool *isRegister)
 {
 	const GfxcAstAnnotation *annotation = state->annotations + idx;
 	u32 bytes = 0;
@@ -278,7 +308,7 @@ void EmitValue(GeneratorState *state, u32 idx, bool *isRegister)
 	default: bytes = data.shared.bytes;
 	}
 
-	state->bytecode = Stack_PushBulk(state->bytecode, &bytes, sizeof(u32), NULL);
+	return bytes;
 }
 
 u32 ResolveLabel(GeneratorState *state, u32 idx)

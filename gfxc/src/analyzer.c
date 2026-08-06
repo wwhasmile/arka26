@@ -112,9 +112,9 @@ void BuildRootSymbolTable(AnalyzerState *state)
 			symbol.value.texture.id = textureCount++;
 			break;
 		case GFXC_AST_NODE_REGION:
-			annotations[i].region.id = regionCount;
+			annotations[i].region.id = regionCount + 1;
 			symbol.value.shared.type = GFXC_TYPE_REGION;
-			symbol.value.region.id = regionCount++;
+			symbol.value.region.id = ++regionCount;
 			break;
 		case GFXC_AST_NODE_SCRIPT:
 			annotations[i].script.id = scriptCount;
@@ -138,8 +138,6 @@ void Texture(AnalyzerState *state, u32 idx)
 	for (u32 i = 0; i < ARRAY_LENGTH(GFXC_TEXTURE_ATTRIBUTES); ++i) {
 		if (GFXC_TEXTURE_ATTRIBUTES[i].mandatory && !found[i])
 			ReportError(state, GFXC_TEXTURE_REQUIRED_MESSAGE[i], idx);
-		else if (!found[i])
-			state->astAnnotations[idx + 1 + i].attributeValue.data = GFXC_TEXTURE_ATTRIBUTES[i].value;
 	}
 }
 
@@ -154,8 +152,6 @@ void Region(AnalyzerState *state, u32 idx)
 	for (u32 i = 0; i < ARRAY_LENGTH(GFXC_REGION_ATTRIBUTES); ++i) {
 		if (GFXC_REGION_ATTRIBUTES[i].mandatory && !found[i])
 			ReportError(state, GFXC_REGION_REQUIRED_MESSAGE[i], idx);
-		else if (!found[i])
-			state->astAnnotations[idx + 1 + i].attributeValue.data = GFXC_REGION_ATTRIBUTES[i].value;
 	}
 }
 
