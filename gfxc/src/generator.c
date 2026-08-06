@@ -136,8 +136,6 @@ void EmitAttrSet(GeneratorState *state, u32 idx)
 {
 	const GfxcAstNode *ast = state->ast;
 
-	EmitString(state, ast[idx].data.attrSet.id, ast[idx].data.attrSet.idLength);
-
 	u32 count = 0;
 	u32 start = 0;
 	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
