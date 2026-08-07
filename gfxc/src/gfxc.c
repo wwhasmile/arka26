@@ -70,14 +70,5 @@ int main(int argc, char **argv)
 
 	printf("GFXC: %s has been successfully compiled into %s.\n", argv[1], argv[2]);
 
-	// We're not freeing memory in release builds because... why, system does it, it's end of the program.
-	// It's only here in debug for memory checkers not to go rogue.
-	#ifndef GFXC_RELEASE
-	Stack_Release(bytecode);
-	free(annotations);
-	Stack_Release(ast);
-	free(src);
-	#endif // GFXC_RELEASE
-
 	return 0;
 }
