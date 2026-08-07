@@ -1,10 +1,10 @@
 CC ?= cc
+AR ?= ar
 
-ASSEMBLY_NAME=gfxc
+ASSEMBLY_NAME=has
 
 CFLAGS := -std=c99 -Wall -Wextra -Wpedantic -Werror
-LDFLAGS := -L../has/lib -lhas
-INCLUDE_FLAGS := -Isrc -I../has/src
+INCLUDE_FLAGS := -Isrc
 
 DEFINES :=
 
@@ -40,13 +40,11 @@ build-release: scaffold flags-release compile link
 build-debug: scaffold flags-debug compile link
 
 flags-release: DEFINES += -DGFXC_RELEASE
-flags-release: CFLAGS += -MD -O3
-flags-release: LDFLAGS +=
+flags-release: CFLAGS += -flto -MD -O3
 flags-release: link compile
 
 flags-debug: DEFINES += -DGFXC_DEBUG
 flags-debug: CFLAGS += -MD -O0 -g3 -fno-omit-frame-pointer
-flags-debug: LDFLAGS += -g3
 flags-debug: link compile
 
 .NOTPARALLEL: scaffold
@@ -57,35 +55,35 @@ scaffold-win32:
 	@if not exist bin mkdir bin
 
 scaffold-linux:
-	@mkdir -p bin
+	@mkdir -p lib
 	@mkdir -p $(addprefix obj/,$(DIRECTORIES))
 
 clean: clean-$(PLATFORM)
 
 clean-win32:
 	@echo Cleaning
-	if exist bin del /s /q bin\*.*
+	if exist lib del /s /q bin\*.*
 	if exist obj del /s /q obj\*.*
 
 clean-linux:
 	@echo Cleaning
-	@rm -rf bin/*
+	@rm -rf lib/*
 	@rm -rf obj/*
 
 link: link-$(PLATFORM)
 
 link-win32: CFLAGS += -Xlinker /INCREMENTAL
 link-win32: DEFINES += -D_CRT_SECURE_NO_WARNINGS -DUNICODE
-link-win32: OUTPUT_NAME = bin\$(ASSEMBLY_NAME).exe
+link-win32: OUTPUT_NAME = lib\$(ASSEMBLY_NAME).lib
 
 link-linux: CFLAGS +=
-link-linux: DEFINES +=
-link-linux: OUTPUT_NAME = bin/$(ASSEMBLY_NAME)
+link-win32: DEFINES +=
+link-linux: OUTPUT_NAME = lib/lib$(ASSEMBLY_NAME).a
 
 link-win32 link-linux: link-common
 
 link-common: $(OBJ_FILES)
-	@$(CC) $(OBJ_FILES) -o $(OUTPUT_NAME) $(LDFLAGS)
+	@$(AR) rcs $(OUTPUT_NAME) $(OBJ_FILES)
 
 .PHONY: compile
 compile:
