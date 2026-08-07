@@ -11,7 +11,7 @@
         inherit system;
       };
     in {
-      devShells.${system}.default = pkgs.mkShellNoCC {
+      devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
           # To open a web server for emscripten build
           python3
@@ -20,8 +20,6 @@
           # Syntax highlighting, formatter, and linter
           clang-tools
           # Build tools
-          gnumake
-          gcc
           emscripten
           # Debug tools
           gdb
