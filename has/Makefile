@@ -1,5 +1,7 @@
 CC ?= cc
 AR ?= ar
+EMCC ?= emcc
+EMAR ?= emar
 
 ASSEMBLY_NAME=has
 
@@ -15,15 +17,14 @@ ifneq ($(OS),Windows_NT)
 	UNAME_S = $(shell uname -s)
 endif
 ifeq ($(OS),Windows_NT)
-	PLATFORM := win32
-
+	HOST := win32
 	rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 	DIR := $(subst /,\,$(CURDIR))
 	SRC_FILES = $(call rwildcard,src,*.c)
 	DIRECTORIES = \src $(subst $(DIR),,$(shell dir src /S /AD /B | findstr /i src))
 	OBJ_FILES = $(SRC_FILES:%=obj/%.o)
 else ifeq ($(UNAME_S),Linux)
-	PLATFORM := linux
+	HOST := linux
 	SRC_FILES = $(shell find src -name "*.c")
 	DIRECTORIES = $(shell find src -type d)
 	OBJ_FILES = $(SRC_FILES:%=obj/%.o)
@@ -31,9 +32,15 @@ else
 	$(error Unsupported platform in this makefile.)
 endif
 
+PLATFORM ?= $(HOST)
+ifeq ($(PLATFORM),emscripten)
+	CC = $(EMCC)
+	EMAR = $(EMAR)
+endif
+
 .PHONY: build-debug build-release flags-debug flags-release
 .PHONY: scaffold scaffold-win32 scaffold-linux
-.PHONY: link link-win32 link-linux
+.PHONY: link link-win32 link-linux link-emscripten
 .PHONY: clean clean-win32 clean-linux
 
 build-release: scaffold flags-release compile link
@@ -48,7 +55,7 @@ flags-debug: CFLAGS += -MD -O0 -g3 -fno-omit-frame-pointer
 flags-debug: link compile
 
 .NOTPARALLEL: scaffold
-scaffold: scaffold-$(PLATFORM)
+scaffold: scaffold-$(HOST)
 
 scaffold-win32:
 	-@mkdir $(addprefix obj\\,$(DIRECTORIES)) 2>nul
@@ -58,7 +65,7 @@ scaffold-linux:
 	@mkdir -p lib
 	@mkdir -p $(addprefix obj/,$(DIRECTORIES))
 
-clean: clean-$(PLATFORM)
+clean: clean-$(HOST)
 
 clean-win32:
 	@echo Cleaning
@@ -77,10 +84,14 @@ link-win32: DEFINES += -D_CRT_SECURE_NO_WARNINGS -DUNICODE
 link-win32: OUTPUT_NAME = lib\$(ASSEMBLY_NAME).lib
 
 link-linux: CFLAGS +=
-link-win32: DEFINES +=
+link-linux: DEFINES +=
 link-linux: OUTPUT_NAME = lib/lib$(ASSEMBLY_NAME).a
 
-link-win32 link-linux: link-common
+link-emscripten: CFLAGS +=
+link-emscripten: DEFINES +=
+link-emscripten: OUTPUT_NAME = lib/lib$(ASSEMBLY_NAME).a
+
+link-win32 link-linux link-emscripten: link-common
 
 link-common: $(OBJ_FILES)
 	@$(AR) rcs $(OUTPUT_NAME) $(OBJ_FILES)
