@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>$(SolutionDir)build/a.gfxc $(SolutionDir)build/a.gfx</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommandArgumentsHistory>a.gfx a.gfxc|C:\Users\uwuhasmile\source\repos\wwhasmile\arka26\build/a.gfx C:\Users\uwuhasmile\source\repos\wwhasmile\arka26\build/a.gfxc|C:\Users\uwuhasmile\source\repos\wwhasmile\arka26\build/a.gfxc C:\Users\uwuhasmile\source\repos\wwhasmile\arka26\build/a.gfx|</LocalDebuggerCommandArgumentsHistory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>$(SolutionDir)build/a.gfx $(SolutionDir)build/a.gfxc</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>

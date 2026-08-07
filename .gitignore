@@ -15,3 +15,7 @@ build/
 out/
 bin/
 obj/
+
+# Visual Studio specific
+*.vcxproj.user
+*.vcxproj.user.*
