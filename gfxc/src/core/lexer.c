@@ -156,6 +156,7 @@ inline void SkipSpaces(Lexer *lexer)
 {
 	while (true) {
 		switch (Peek(lexer)) {
+		case '\r':
 		case '\n':
 		case ' ':
 		case '\t':
@@ -189,7 +190,11 @@ inline bool Match(Lexer *lexer, char c)
 
 inline char Advance(Lexer *lexer)
 {
-	if (*lexer->cur == '\n') {
+	if (*lexer->cur == '\r' && *(lexer->cur + 1) == '\n') {
+		++lexer->cur;
+		++lexer->curLine;
+		lexer->curColumn = 0;
+	} else if (*lexer->cur == '\n' || *lexer->cur == '\r') {
 		++lexer->curLine;
 		lexer->curColumn = 0;
 	}

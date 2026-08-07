@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
 	char *src;
 	{
-		FILE *input = fopen(argv[1], "r");
+		FILE *input = fopen(argv[1], "rb");
 		if (input == NULL) {
 			fprintf(stderr, "GFXC: Input file \"%s\" wasn't found\n", argv[1]);
 			return 1;
