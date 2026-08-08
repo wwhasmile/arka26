@@ -241,10 +241,17 @@ const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 		}
 	},
 	{
+		"FLAG_FADE",
+		sizeof("FLAG_FADE") - 1,
+		{
+			.intv = { GFXC_TYPE_INT, 1 << 8 }
+		}
+	},
+	{
 		"FLAG_INTERPOLATE",
 		sizeof("FLAG_INTERPOLATE") - 1,
 		{
-			.intv = { GFXC_TYPE_INT, 1 << 8 }
+			.intv = { GFXC_TYPE_INT, 1 << 9 }
 		}
 	},
 

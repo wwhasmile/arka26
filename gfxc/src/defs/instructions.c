@@ -98,11 +98,10 @@ const GfxcInstruction GFXC_INSTRUCTIONS[] = {
 	{ "tw.ab", sizeof("tw.a.b") - 1, 3, { GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_INT } },
 	{ "tw.lvel", sizeof("tw.lvel") - 1, 5, { GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_INT } },
 	{ "tw.avel", sizeof("tw.avel") - 1, 5, { GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_INT } },
-	{ "tw.avel", sizeof("tw.avel") - 1, 5, { GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_INT } },
 	{ "tw.scrollx", sizeof("tw.scroll.x") - 1, 1, { GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_INT } },
 	{ "tw.scrolly", sizeof("tw.scroll.y") - 1, 1, { GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_INT } },
 	{ "tw.scaleuv", sizeof("tw.scale.uv") - 1, 1, { GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT, GFXC_TYPE_INT } },
-	{ "fade", sizeof("fade") - 1, 3, { GFXC_TYPE_BOOL, GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
+	{ "fade", sizeof("fade") - 1, 3, { GFXC_TYPE_FLOAT, GFXC_TYPE_FLOAT } },
 	{ "grad", sizeof("grad") - 1, 1, { GFXC_TYPE_INT } },
 
 	{ "new", sizeof("new") - 1, 2, { GFXC_TYPE_INT_REGISTER, GFXC_TYPE_SCRIPT } },
