@@ -46,11 +46,11 @@ endif
 build-release: scaffold flags-release compile link
 build-debug: scaffold flags-debug compile link
 
-flags-release: DEFINES += -DGFXC_RELEASE
+flags-release: DEFINES += -DHAS_RELEASE
 flags-release: CFLAGS += -flto -MD -O3
 flags-release: link compile
 
-flags-debug: DEFINES += -DGFXC_DEBUG
+flags-debug: DEFINES += -DHAS_DEBUG
 flags-debug: CFLAGS += -MD -O0 -g3 -fno-omit-frame-pointer
 flags-debug: link compile
 

@@ -12,24 +12,21 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
-    <ProjectGuid>{34373E0F-7E82-8698-719A-CA4D7D666626}</ProjectGuid>
-    <Keyword>ManagedCProj</Keyword>
+    <ProjectGuid>{C9129920-44EF-FC4F-7C17-EC0A45B2074C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>ClangCL</PlatformToolset>
-    <CLRSupport>false</CLRSupport>
-    <EnableASAN>true</EnableASAN>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>ClangCL</PlatformToolset>
-    <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -59,24 +56,20 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <ClCompile>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;GFXC_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\has\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-      <ConformanceMode>true</ConformanceMode>
-      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-      <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <CompileAs>CompileAsC</CompileAs>
-      <UseFullPaths>false</UseFullPaths>
-      <AdditionalOptions>/clang:-std=c99 %(AdditionalOptions)</AdditionalOptions>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;HAS_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>false</ExceptionHandling>
+      <AdditionalOptions>/clang:-std=c99 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -84,44 +77,32 @@
       <EnableSegmentHeap>true</EnableSegmentHeap>
     </Manifest>
     <ClCompile>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;GFXC_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;$(SolutionDir)\has\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableLanguageExtensions>false</DisableLanguageExtensions>
-      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
-      <ConformanceMode>true</ConformanceMode>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <ExceptionHandling>false</ExceptionHandling>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <CompileAs>CompileAsC</CompileAs>
-      <UseFullPaths>false</UseFullPaths>
-      <AdditionalOptions>/clang:-std=c99 %(AdditionalOptions)</AdditionalOptions>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_LIB;HAS_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>false</ExceptionHandling>
+      <AdditionalOptions>/clang:-std=c99 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\defs\attributes.c" />
-    <ClCompile Include="src\defs\instructions.c" />
-    <ClCompile Include="src\defs\symbols.c" />
-    <ClCompile Include="src\gfxc.c" />
-    <ClCompile Include="src\steps\analyzer.c" />
-    <ClCompile Include="src\steps\generator.c" />
-    <ClCompile Include="src\steps\parser.c" />
+    <ClCompile Include="src\core\lexer.c" />
+    <ClCompile Include="src\core\stack.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\gfxc.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\has\has.vcxproj">
-      <Project>{c9129920-44ef-fc4f-7c17-ec0a45b2074c}</Project>
-    </ProjectReference>
+    <ClInclude Include="src\core\defines.h" />
+    <ClInclude Include="src\core\lexer.h" />
+    <ClInclude Include="src\core\stack.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

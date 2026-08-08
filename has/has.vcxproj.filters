@@ -15,36 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\gfxc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\core\lexer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\core\stack.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\defs\attributes.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\defs\instructions.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\defs\symbols.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\steps\analyzer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\steps\generator.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\steps\parser.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\gfxc.h">
+    <ClInclude Include="src\core\defines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\core\lexer.h">
@@ -53,8 +32,5 @@
     <ClInclude Include="src\core\stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\.editorconfig" />
   </ItemGroup>
 </Project>
