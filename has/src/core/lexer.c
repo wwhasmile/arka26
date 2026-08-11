@@ -53,6 +53,12 @@ LexerToken Lexer_Next(Lexer *lexer)
 			return Number(lexer, false);
 
 		switch (c) {
+		case '(': return MakeToken(lexer, LEXER_TOKEN_LPAREN);
+		case ')': return MakeToken(lexer, LEXER_TOKEN_RPAREN);
+		case '{': return MakeToken(lexer, LEXER_TOKEN_LBRACE);
+		case '}': return MakeToken(lexer, LEXER_TOKEN_RBRACE);
+		case '[': return MakeToken(lexer, LEXER_TOKEN_LBRACKET);
+		case ']': return MakeToken(lexer, LEXER_TOKEN_RBRACKET);
 		case '"': return String(lexer);
 		case '.':
 			if (isdigit(Peek(lexer)))
