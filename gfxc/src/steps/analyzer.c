@@ -251,7 +251,21 @@ void Instuction(AnalyzerState *state, u32 idx, u32 id) {
 
 	u32 argi = 0;
 	for (i = idx + 1; i != 0; i = ast[i].next) {
-		if (ast[i].type == GFXC_AST_NODE_INSTRUCTION)
+		bool end = false;
+		switch (ast[i].type) {
+		case GFXC_AST_NODE_NONE: /* fallthrough */
+		case GFXC_AST_NODE_TEXTURE: /* fallthrough */
+		case GFXC_AST_NODE_REGION: /* fallthrough */
+		case GFXC_AST_NODE_SCRIPT: /* fallthrough */
+		case GFXC_AST_NODE_LABEL: /* fallthrough */
+		case GFXC_AST_NODE_TIME_LABEL: /* fallthrough */
+		case GFXC_AST_NODE_INSTRUCTION:
+			end = true;
+			/* fallthrough */
+		default: break;
+		}
+
+		if (end)
 			break;
 
 		if (argi >= instruction->argc) {
