@@ -380,15 +380,15 @@ const GfxcSymbol GFXC_DEFAULT_SYMBOLS[] = {
 		}
 	},
 	{
-		"BLEND_OP_REVERSE_MIN",
-		sizeof("BLEND_OP_REVERSE_MIN") - 1,
+		"BLEND_OP_MIN",
+		sizeof("BLEND_OP_MIN") - 1,
 		{
 			.intv = { GFXC_TYPE_INT, 3 }
 		}
 	},
 	{
-		"BLEND_OP_REVERSE_MAX",
-		sizeof("BLEND_OP_REVERSE_MAX") - 1,
+		"BLEND_OP_MAX",
+		sizeof("BLEND_OP_MAX") - 1,
 		{
 			.intv = { GFXC_TYPE_INT, 4 }
 		}

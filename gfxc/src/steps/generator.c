@@ -206,9 +206,9 @@ void EmitScript(GeneratorState *state, u32 idx)
 
 	EmitString(state, ast[idx].data.attrSet.id, ast[idx].data.attrSet.idLength);
 
-	u32 start = Stack_Count(state->bytecode);
 	u32 sizeIdx = 0;
 	state->bytecode = Stack_PushBulk(state->bytecode, &sizeIdx, sizeof(u32), &sizeIdx);
+	u32 start = Stack_Count(state->bytecode);
 
 	f32 time = 0.0f;
 	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
