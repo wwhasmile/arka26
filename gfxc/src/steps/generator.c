@@ -84,10 +84,10 @@ bool FindString(GeneratorState *state, const char *data, u32 dataLength, u32 *of
 	u32 i = sizeof(GfxcBytecodeHeader);
 	u32 count = Stack_Count(bytecode);
 	while (i < count) {
-		u32 iLength = *(u32*)(bytecode + i);
+		u32 length = *(u32*)(bytecode + i);
 
-		if (dataLength != iLength) {
-			i += GFXC_ALIGN(iLength) + sizeof(u32);
+		if (dataLength != length) {
+			i += GFXC_ALIGN(length) + sizeof(u32);
 	 		continue;
 		}
 
@@ -98,7 +98,7 @@ bool FindString(GeneratorState *state, const char *data, u32 dataLength, u32 *of
 			return true;
 		}
 
-		i += GFXC_ALIGN(iLength) + sizeof(u32);
+		i += GFXC_ALIGN(length) + sizeof(u32);
 	}
 
 	return false;
@@ -142,7 +142,7 @@ void EmitTexture(GeneratorState *state, u32 idx)
 		bytes[i] = GFXC_TEXTURE_ATTRIBUTES[i].value.shared.bytes;
 	}
 
-	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
+	for (u32 i = ast[idx].data.texture.attr; i != 0; i = ast[i].next) {
 		u32 attri = state->annotations[i + 1].attributeValue.id;
 		bytes[attri] = Value(state, i + 1, NULL);
 	}
@@ -175,7 +175,7 @@ void EmitRegion(GeneratorState *state, u32 idx)
 		bytes[i] = GFXC_REGION_ATTRIBUTES[i].value.shared.bytes;
 	}
 
-	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
+	for (u32 i = ast[idx].data.region.attr; i != 0; i = ast[i].next) {
 		u32 attri = state->annotations[i + 1].attributeValue.id;
 		bytes[attri] = Value(state, i + 1, NULL);
 	}
@@ -211,7 +211,7 @@ void EmitScript(GeneratorState *state, u32 idx)
 	u32 start = Stack_Count(state->bytecode);
 
 	f32 time = 0.0f;
-	for (u32 i = idx + 1; i != 0; i = ast[i].next) {
+	for (u32 i = ast[idx].data.script.stat; i != 0; i = ast[i].next) {
 		if (ast[i].type == GFXC_AST_NODE_TIME_LABEL) {
 			if (ast[i].data.timeLabel.relative)
 				time += ast[i].data.timeLabel.offset;
@@ -240,7 +240,7 @@ void EmitInstruction(GeneratorState *state, u32 idx, f32 time)
 	u16 mask = 0;
 	state->bytecode = Stack_PushBulk(state->bytecode, &mask, sizeof(u16), &maskIdx);
 
-	for (u32 i = idx + 1, j = 0; i != 0; i = state->ast[i].next, ++j) {
+	for (u32 i = state->ast[idx].data.instruction.arg, j = 0; i != 0; i = state->ast[i].next, ++j) {
 		bool isRegister;
 		u32 bytes = Value(state, i, &isRegister);
 		state->bytecode = Stack_PushBulk(state->bytecode, &bytes, sizeof(u32), NULL);

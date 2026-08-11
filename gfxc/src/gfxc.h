@@ -42,14 +42,17 @@ typedef struct {
 		struct {
 			const char *id;
 			u32 idLength;
+			u32 attr;
 		} texture;
 		struct {
 			const char *id;
 			u32 idLength;
+			u32 attr;
 		} region;
 		struct {
 			const char *id;
 			u32 idLength;
+			u32 attr;
 		} attrSet;
 		struct {
 			const char *id;
@@ -58,10 +61,12 @@ typedef struct {
 		struct {
 			const char *id;
 			u32 idLength;
+			u32 stat;
 		} script;
 		struct {
 			const char *id;
 			u32 idLength;
+			u32 arg;
 		} instruction;
 		struct {
 			const char *id;

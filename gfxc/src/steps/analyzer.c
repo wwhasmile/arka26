@@ -131,7 +131,7 @@ void Texture(AnalyzerState *state, u32 idx)
 {
 	bool found[ARRAY_LENGTH(GFXC_TEXTURE_ATTRIBUTES)] = { 0 };
 
-	for (u32 i = idx + 1; i != 0; i = state->ast[i].next) {
+	for (u32 i = state->ast[idx].data.texture.attr; i != 0; i = state->ast[i].next) {
 		Attribute(state, i, GFXC_TEXTURE_ATTRIBUTES, found, ARRAY_LENGTH(GFXC_TEXTURE_ATTRIBUTES));
 	}
 
@@ -145,7 +145,7 @@ void Region(AnalyzerState *state, u32 idx)
 {
 	bool found[ARRAY_LENGTH(GFXC_REGION_ATTRIBUTES)] = { 0 };
 
-	for (u32 i = idx + 1; i != 0; i = state->ast[i].next) {
+	for (u32 i = state->ast[idx].data.region.attr; i != 0; i = state->ast[i].next) {
 		Attribute(state, i, GFXC_REGION_ATTRIBUTES, found, ARRAY_LENGTH(GFXC_REGION_ATTRIBUTES));
 	}
 
@@ -189,7 +189,7 @@ void Script(AnalyzerState *state, u32 idx)
 	BuildScriptSymbolTable(state, idx);
 
 	const GfxcAstNode *ast = state->ast;
-	for (u32 i = idx + 1, id = 0; i != 0; i = ast[i].next) {
+	for (u32 i = ast[idx].data.script.stat, id = 0; i != 0; i = ast[i].next) {
 		if (ast[i].type != GFXC_AST_NODE_INSTRUCTION)
 			continue;
 		Instuction(state, i, id++);
@@ -204,7 +204,7 @@ void BuildScriptSymbolTable(AnalyzerState *state, u32 idx)
 	GfxcAstAnnotation *annotations = state->astAnnotations;
 	GfxcSymbol *symbols = state->symbols;
 
-	for (u32 i = idx + 1, inst = 1; i != 0; i = ast[i].next) {
+	for (u32 i = ast[idx].data.script.stat, inst = 1; i != 0; i = ast[i].next) {
 		if (ast[i].type == GFXC_AST_NODE_INSTRUCTION) {
 			++inst;
 			continue;
@@ -250,24 +250,7 @@ void Instuction(AnalyzerState *state, u32 idx, u32 id) {
 	state->astAnnotations[idx].instruction.opcode = i;
 
 	u32 argi = 0;
-	for (i = idx + 1; i != 0; i = ast[i].next) {
-		bool end = false;
-		switch (ast[i].type) {
-		case GFXC_AST_NODE_NONE: /* fallthrough */
-		case GFXC_AST_NODE_TEXTURE: /* fallthrough */
-		case GFXC_AST_NODE_REGION: /* fallthrough */
-		case GFXC_AST_NODE_SCRIPT: /* fallthrough */
-		case GFXC_AST_NODE_LABEL: /* fallthrough */
-		case GFXC_AST_NODE_TIME_LABEL: /* fallthrough */
-		case GFXC_AST_NODE_INSTRUCTION:
-			end = true;
-			/* fallthrough */
-		default: break;
-		}
-
-		if (end)
-			break;
-
+	for (i = ast[idx].data.instruction.arg; i != 0; i = ast[i].next) {
 		if (argi >= instruction->argc) {
 			ReportError(state, "Too many arguments", idx);
 			return;
@@ -280,7 +263,7 @@ void Instuction(AnalyzerState *state, u32 idx, u32 id) {
 		argi++;
 	}
 	if (argi < instruction->argc)
-		ReportError(state, GFXC_INVALID_TYPE_MESSAGES[instruction->argt[argi]], idx + argi + 1);
+		ReportError(state, "Too few arguments", idx);
 }
 
 const GfxcSymbol *GetSymbol(const AnalyzerState *state, const char *id, u32 idLength)

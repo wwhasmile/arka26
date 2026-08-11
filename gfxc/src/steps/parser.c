@@ -87,7 +87,7 @@ u32 Identifier(ParserState *state, u32 last)
 	return id;
 }
 
-static u32 Field(ParserState *state, u32 last);
+static u32 Attr(ParserState *state, u32 last);
 
 u32 DataDeclaration(ParserState *state, GfxcAstNodeType type, u32 last)
 {
@@ -102,9 +102,12 @@ u32 DataDeclaration(ParserState *state, GfxcAstNodeType type, u32 last)
 	state->ast[id].data.attrSet.idLength = idToken.length;
 	state->ast[id].data.attrSet.id = idToken.lexeme;
 
-	u32 fieldId = 0;
+	u32 attrId = 0;
 	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_END_BLOCK_KEYWORD)) {
-		fieldId = Field(state, fieldId);
+		u32 a = Attr(state, attrId);
+		if (attrId == 0)
+			state->ast[id].data.attrSet.attr = a;
+		attrId = a;
 	}
 
 	if (IsAtEnd(state)) {
@@ -128,12 +131,15 @@ u32 ScriptDeclaration(ParserState *state, u32 last)
 		ReportError(state, "Expected script identifier");
 		return 0;
 	}
-	state->ast[id].data.attrSet.idLength = idToken.length;
-	state->ast[id].data.attrSet.id = idToken.lexeme;
+	state->ast[id].data.script.idLength = idToken.length;
+	state->ast[id].data.script.id = idToken.lexeme;
 
 	u32 statementId = 0;
 	while (!IsAtEnd(state) && !IsKeyword(state, GFXC_END_BLOCK_KEYWORD)) {
-		statementId = Statement(state, statementId);
+		u32 s = Statement(state, statementId);
+		if (statementId == 0)
+			state->ast[id].data.script.stat = s;
+		statementId = s;
 	}
 
 	if (IsAtEnd(state)) {
@@ -145,7 +151,7 @@ u32 ScriptDeclaration(ParserState *state, u32 last)
 	return id;
 }
 
-u32 Field(ParserState *state, u32 last)
+u32 Attr(ParserState *state, u32 last)
 {
 	LexerToken idToken;
 	if (!Match(state, LEXER_TOKEN_IDENTIFIER, &idToken)) {
@@ -203,11 +209,14 @@ u32 IdentifierStatement(ParserState *state, u32 last)
 	}
 
 	state->ast[id].type = GFXC_AST_NODE_INSTRUCTION;
-	u32 valueId = 0;
+	u32 argId = 0;
 	while (true) {
 		if (Match(state, LEXER_TOKEN_SEMICOLON, NULL))
 			break;
-		valueId = Value(state, valueId);
+		u32 a = Value(state, argId);
+		if (argId == 0)
+			state->ast[id].data.instruction.arg = a;
+		argId = a;
 		if (Match(state, LEXER_TOKEN_SEMICOLON, NULL))
 			break;
 		if (!Match(state, LEXER_TOKEN_COMMA, NULL)) {
