@@ -35,7 +35,7 @@ endif
 PLATFORM ?= $(HOST)
 ifeq ($(PLATFORM),emscripten)
 	CC = $(EMCC)
-	EMAR = $(EMAR)
+	AR = $(EMAR)
 endif
 
 .PHONY: build-debug build-release flags-debug flags-release
