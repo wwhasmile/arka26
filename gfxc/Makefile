@@ -16,6 +16,7 @@ ifneq ($(OS),Windows_NT)
 endif
 ifeq ($(OS),Windows_NT)
 	HOST := win32
+	VERSION := $(shell git describe --tags --always --dirty 2>NUL || echo local)
 	rwildcard=$(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 	DIR := $(subst /,\,$(CURDIR))
 	SRC_FILES = $(call rwildcard,src,*.c)
@@ -23,6 +24,7 @@ ifeq ($(OS),Windows_NT)
 	OBJ_FILES = $(SRC_FILES:%=obj/%.o)
 else ifeq ($(UNAME_S),Linux)
 	HOST := linux
+	VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo local)
 	SRC_FILES = $(shell find src -name "*.c")
 	DIRECTORIES = $(shell find src -type d)
 	OBJ_FILES = $(SRC_FILES:%=obj/%.o)
@@ -30,7 +32,7 @@ else
 	$(error Unsupported platform in this makefile.)
 endif
 
-PLATFORM ?= $(HOST)
+PLATFORM := $(HOST)
 
 .PHONY: build-debug build-release flags-debug flags-release
 .PHONY: scaffold scaffold-win32 scaffold-linux
@@ -40,12 +42,12 @@ PLATFORM ?= $(HOST)
 build-release: scaffold flags-release compile link
 build-debug: scaffold flags-debug compile link
 
-flags-release: DEFINES += -DGFXC_RELEASE
+flags-release: DEFINES += -DGFXC_RELEASE -DVERSION=\"$(VERSION)\"
 flags-release: CFLAGS += -MD -O3
 flags-release: LDFLAGS +=
 flags-release: link compile
 
-flags-debug: DEFINES += -DGFXC_DEBUG
+flags-debug: DEFINES += -DGFXC_DEBUG -DVERSION=\"$(VERSION)-debug\"
 flags-debug: CFLAGS += -MD -O0 -g3 -fno-omit-frame-pointer
 flags-debug: LDFLAGS += -g3
 flags-debug: link compile

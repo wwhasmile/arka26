@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <version.h>
+
 void GFXC_Error(const char *message, u32 line, u32 column, const char *src)
 {
 	u32 currentLine = 1;
@@ -25,7 +27,7 @@ int main(int argc, char **argv)
 {
 	if (argc < 3)
 	{
-		printf("GFXC version 1\nMade by Hasmile\n\n");
+		printf("GFXC %s\nMade by Hasmile\n\n", VERSION);
 		printf("Usage:\ngfxc input_file output_file");
 		return 0;
 	}
