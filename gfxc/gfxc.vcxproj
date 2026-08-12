@@ -109,6 +109,7 @@
   <ItemGroup>
     <ClCompile Include="src\defs\attributes.c" />
     <ClCompile Include="src\defs\instructions.c" />
+    <ClCompile Include="src\defs\macros.c" />
     <ClCompile Include="src\defs\symbols.c" />
     <ClCompile Include="src\gfxc.c" />
     <ClCompile Include="src\steps\analyzer.c" />
