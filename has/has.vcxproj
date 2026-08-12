@@ -96,13 +96,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\core\lexer.c" />
-    <ClCompile Include="src\core\stack.c" />
+    <ClCompile Include="src\lexer.c" />
+    <ClCompile Include="src\ds\stack.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\core\defines.h" />
-    <ClInclude Include="src\core\lexer.h" />
-    <ClInclude Include="src\core\stack.h" />
+    <ClInclude Include="src\defines.h" />
+    <ClInclude Include="src\lexer.h" />
+    <ClInclude Include="src\ds\stack.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

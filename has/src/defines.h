@@ -1,5 +1,5 @@
-#ifndef DEFINES_H
-#define DEFINES_H
+#ifndef HAS_DEFINES_H
+#define HAS_DEFINES_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -89,4 +89,4 @@ typedef struct {
 #define ARRAY_LENGTH(arr) (sizeof((arr)) / (sizeof((arr[0]))))
 #define STRING_LENGTH(str) (sizeof(str) - 1)
 
-#endif // DEFINES_H
+#endif // HAS_DEFINES_H

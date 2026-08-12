@@ -1,7 +1,7 @@
-#ifndef LEXER_H
-#define LEXER_H
+#ifndef HAS_LEXER_H
+#define HAS_LEXER_H
 
-#include <core/defines.h>
+#include <defines.h>
 
 typedef struct {
 	const char* start;
@@ -56,4 +56,4 @@ void Lexer_Initialize(Lexer *lexer, const char *src);
 
 LexerToken Lexer_Next(Lexer *lexer);
 
-#endif // LEXER_H
+#endif // HAS_LEXER_H

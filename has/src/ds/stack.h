@@ -1,7 +1,7 @@
-#ifndef STACK_H
-#define STACK_H
+#ifndef HAS_DS_STACK_H
+#define HAS_DS_STACK_H
 
-#include <core/defines.h>
+#include <defines.h>
 
 #ifndef STACK_DEFAULT_CAPACITY
 #define STACK_DEFAULT_CAPACITY 8
@@ -29,4 +29,4 @@ u32 Stack_Count(const void *stack);
 
 void Stack_Release(void *stack);
 
-#endif // STACK_H
+#endif // HAS_DS_STACK_H
