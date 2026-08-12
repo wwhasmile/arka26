@@ -1,4 +1,5 @@
 CC ?= cc
+EMCC ?= emcc
 
 ASSEMBLY_NAME=arka26
 
@@ -32,11 +33,15 @@ else
 	$(error Unsupported platform in this makefile.)
 endif
 
-PLATFORM := $(HOST)
+PLATFORM ?= $(HOST)
+ifeq ($(PLATFORM),emscripten)
+	CC = $(EMCC)
+	AR = $(EMAR)
+endif
 
 .PHONY: build-debug build-release flags-debug flags-release
 .PHONY: scaffold scaffold-win32 scaffold-linux
-.PHONY: link link-win32 link-linux
+.PHONY: link link-win32 link-linux link-emscripten
 .PHONY: clean clean-win32 clean-linux
 
 build-release: scaffold flags-release compile link
@@ -53,7 +58,7 @@ flags-debug: LDFLAGS += -g3
 flags-debug: link compile
 
 .NOTPARALLEL: scaffold
-scaffold: scaffold-$(PLATFORM)
+scaffold: scaffold-$(HOST)
 
 scaffold-win32:
 	-@mkdir $(addprefix obj\\,$(DIRECTORIES)) 2>nul
@@ -87,7 +92,12 @@ link-linux: DEFINES +=
 link-linux: LDFLAGS +=
 link-linux: OUTPUT_NAME = bin/$(ASSEMBLY_NAME)
 
-link-win32 link-linux: link-common
+link-emscripten: CFLAGS +=
+link-emscripten: DEFINES +=
+link-emscripten: LDFLAGS +=
+link-emscripten: OUTPUT_NAME = bin/index.html
+
+link-win32 link-linux link-emscripten: link-common
 
 link-common: $(OBJ_FILES)
 	@$(CC) $(OBJ_FILES) -o $(OUTPUT_NAME) $(LDFLAGS)

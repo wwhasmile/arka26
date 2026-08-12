@@ -53,7 +53,7 @@ flags-debug: LDFLAGS += -g3
 flags-debug: link compile
 
 .NOTPARALLEL: scaffold
-scaffold: scaffold-$(PLATFORM)
+scaffold: scaffold-$(HOST)
 
 scaffold-win32:
 	-@mkdir $(addprefix obj\\,$(DIRECTORIES)) 2>nul
