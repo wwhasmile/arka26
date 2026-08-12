@@ -325,16 +325,19 @@ u32 ResolveLabel(GeneratorState *state, u32 idx)
 	i32 sign = 1;
 	if (data.label.to < annotations[idx].instruction.id) {
 		sign = -1;
-		--idx;
+		idx = ast[idx].last;
 	}
 
-	while (ast[idx].type != GFXC_AST_NODE_INSTRUCTION ||
-		annotations[idx].instruction.id != data.label.to) {
-		if (ast[idx].type == GFXC_AST_NODE_INSTRUCTION)
+	while (annotations[idx].instruction.id != data.label.to) {
+		if (ast[idx].type == GFXC_AST_NODE_INSTRUCTION) {
 			offset += (sizeof(f32) + sizeof(u32)) * sign;
-		else if (ast[idx].type != GFXC_AST_NODE_TIME_LABEL && ast[idx].type != GFXC_AST_NODE_LABEL)
-			offset += sizeof(u32) * sign;
-		idx += sign;
+			for (u32 i = ast[idx].data.instruction.arg; i != 0; i = ast[i].next)
+				offset += sizeof(u32) * sign;
+		}
+		if (sign < 0)
+			idx = ast[idx].last;
+		else
+			idx = ast[idx].next;
 	}
 
 	return (u32)offset;

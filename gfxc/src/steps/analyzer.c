@@ -21,6 +21,10 @@ static const char *GFXC_INVALID_TYPE_MESSAGES[] = {
 	"Expected an integer",
 	"Expected a boolean (true or false)",
 	"Expected a float",
+	"Expected a hexadecimal number literal",
+	"Expected an integer literal",
+	"Expected a boolean (true or false) literal",
+	"Expected a float literal",
 	"Expected a jump label",
 	"Expected an int register x[0,31]",
 	"Expected a float register f[0,31]",
@@ -294,6 +298,7 @@ static inline GfxcValue ResolveBool(AnalyzerState *state, u32 idx);
 static inline GfxcValue ResolveFloat(AnalyzerState *state, u32 idx);
 static inline GfxcValue ResolveHex(AnalyzerState *state, u32 idx);
 static inline GfxcValue ResolveString(AnalyzerState *state, u32 idx);
+static GfxcValue ResolveMacro(AnalyzerState *state, u32 idx);
 
 bool MatchType(AnalyzerState *state, u32 idx, GfxcType expected)
 {
@@ -317,6 +322,9 @@ bool MatchType(AnalyzerState *state, u32 idx, GfxcType expected)
 	case GFXC_AST_NODE_STRING_LITERAL:
 		value = ResolveString(state, idx);
 		break;
+	case GFXC_AST_NODE_MACRO:
+		value = ResolveMacro(state, idx);
+		break;
 	default: return false;
 	}
 
@@ -329,12 +337,21 @@ bool MatchType(AnalyzerState *state, u32 idx, GfxcType expected)
 			value.shared.type == GFXC_TYPE_BOOL ||
 			value.shared.type == GFXC_TYPE_INT_REGISTER;
 	case GFXC_TYPE_BOOL:
-			return value.shared.type == GFXC_TYPE_BOOL ||
-				value.shared.type == GFXC_TYPE_INT_REGISTER;
+		return value.shared.type == GFXC_TYPE_BOOL ||
+			value.shared.type == GFXC_TYPE_INT_REGISTER;
 	case GFXC_TYPE_FLOAT:
-			return value.shared.type == GFXC_TYPE_FLOAT ||
-				value.shared.type == GFXC_TYPE_INT ||
-				value.shared.type == GFXC_TYPE_FLOAT_REGISTER;
+		return value.shared.type == GFXC_TYPE_FLOAT ||
+			value.shared.type == GFXC_TYPE_INT ||
+			value.shared.type == GFXC_TYPE_FLOAT_REGISTER;
+	case GFXC_TYPE_HEX_LITERAL:
+		return value.shared.type == GFXC_TYPE_HEX;
+	case GFXC_TYPE_INT_LITERAL:
+		return value.shared.type == GFXC_TYPE_INT ||
+			value.shared.type == GFXC_TYPE_HEX ||
+			value.shared.type == GFXC_TYPE_BOOL;
+	case GFXC_TYPE_FLOAT_LITERAL:
+		return value.shared.type == GFXC_TYPE_FLOAT ||
+			value.shared.type == GFXC_TYPE_INT;
 	default: return value.shared.type == expected;
 	}
 }
@@ -391,6 +408,51 @@ inline GfxcValue ResolveString(AnalyzerState *state, u32 idx)
 		.string.data = state->ast[idx].data.stringLiteral.data,
 	};
 	return result;
+}
+
+GfxcValue ResolveMacro(AnalyzerState *state, u32 idx) {
+	const GfxcAstNode *ast = state->ast;
+	GfxcValue err = { 0 };
+
+	u32 i;
+	for (i = 0; GFXC_MACROS[i].id != NULL; ++i) {
+		if (ast[idx].data.macro.idLength != GFXC_MACROS[i].idLength)
+			continue;
+		if (strncmp(ast[idx].data.macro.id, GFXC_MACROS[i].id, GFXC_MACROS[i].idLength) == 0)
+			break;
+	}
+
+	const GfxcMacro *macro = GFXC_MACROS + i;
+	if (macro->id == NULL) {
+		ReportError(state, "Macro doesn't exist", idx);
+		return err;
+	}
+	state->astAnnotations[idx].instruction.opcode = i;
+
+	u32 argi = 0;
+	bool failed = false;
+	for (i = ast[idx].data.macro.arg; i != 0; i = ast[i].next) {
+		if (argi >= macro->argc) {
+			ReportError(state, "Too many arguments", idx);
+			return err;
+		}
+
+		GfxcType argt = macro->argt[argi];
+		if (!MatchType(state, i, argt)) {
+			ReportError(state, GFXC_INVALID_TYPE_MESSAGES[argt], i);
+			failed = true;
+		}
+
+		argi++;
+	}
+	if (argi < macro->argc) {
+		ReportError(state, "Too few arguments", idx);
+		return err;
+	}
+	if (failed)
+		return err;
+
+	return macro->execute(ast, state->astAnnotations, ast[idx].data.macro.arg);
 }
 
 void ReportError(AnalyzerState *state, const char *msg, u32 id)

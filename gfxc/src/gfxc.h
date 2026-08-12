@@ -19,6 +19,7 @@ typedef enum {
 	GFXC_AST_NODE_LABEL,
 	GFXC_AST_NODE_TIME_LABEL,
 
+	GFXC_AST_NODE_MACRO,
 	GFXC_AST_NODE_IDENTIFIER,
 	GFXC_AST_NODE_INT_LITERAL,
 	GFXC_AST_NODE_BOOL_LITERAL,
@@ -34,6 +35,7 @@ typedef struct {
 	u32 line;
 	u32 column;
 	u32 next;
+	u32 last;
 	union {
 		struct {
 			const char *src;
@@ -79,6 +81,11 @@ typedef struct {
 		struct {
 			const char *id;
 			u32 idLength;
+			u32 arg;
+		} macro;
+		struct {
+			const char *id;
+			u32 idLength;
 		} identifier;
 		struct {
 			i32 value;
@@ -110,6 +117,11 @@ typedef enum {
 	GFXC_TYPE_INT,
 	GFXC_TYPE_BOOL,
 	GFXC_TYPE_FLOAT,
+
+	GFXC_TYPE_HEX_LITERAL,
+	GFXC_TYPE_INT_LITERAL,
+	GFXC_TYPE_BOOL_LITERAL,
+	GFXC_TYPE_FLOAT_LITERAL,
 
 	GFXC_TYPE_LABEL,
 	GFXC_TYPE_INT_REGISTER,
@@ -219,6 +231,14 @@ typedef union {
 typedef struct {
 	const char *id;
 	u32 idLength;
+	u32 argc;
+	GfxcType argt[10];
+	GfxcValue (*execute)(const GfxcAstNode*, GfxcAstAnnotation*, u32);
+} GfxcMacro;
+
+typedef struct {
+	const char *id;
+	u32 idLength;
 	GfxcValue value;
 } GfxcSymbol;
 
@@ -242,6 +262,7 @@ typedef struct {
 	u32 start;
 } GfxcBytecodeHeader;
 
+extern const GfxcMacro GFXC_MACROS[];
 extern const GfxcAttribute GFXC_TEXTURE_ATTRIBUTES[5];
 extern const GfxcAttribute GFXC_REGION_ATTRIBUTES[5];
 extern const GfxcSymbol GFXC_DEFAULT_SYMBOLS[];
