@@ -12,7 +12,6 @@
 static const char *GFXC_TEXTURE_BLOCK_KEYWORD = "texture";
 static const char *GFXC_REGION_BLOCK_KEYWORD = "region";
 static const char *GFXC_SCRIPT_BLOCK_KEYWORD = "script";
-static const char *GFXC_END_BLOCK_KEYWORD = "end";
 
 typedef struct {
 	Lexer lexer;
@@ -103,20 +102,29 @@ u32 DataDeclaration(ParserState *state, GfxcAstNodeType type, u32 last)
 	state->ast[id].data.attrSet.idLength = idToken.length;
 	state->ast[id].data.attrSet.id = idToken.lexeme;
 
+	if (!Match(state, 0, LEXER_TOKEN_LBRACE, NULL)) {
+		ReportError(state, "Expected {");
+		return 0;
+	}
 	u32 attrId = 0;
-	while (!IsAtEnd(state) && !IsKeyword(state, 0, GFXC_END_BLOCK_KEYWORD)) {
+	while (!IsAtEnd(state) && !Check(state, 0, LEXER_TOKEN_RBRACE, NULL)) {
 		u32 a = Attr(state, attrId);
 		if (attrId == 0)
 			state->ast[id].data.attrSet.attr = a;
 		attrId = a;
+		if (Check(state, 0, LEXER_TOKEN_RBRACE, NULL))
+			break;
+		if (!Match(state, 0, LEXER_TOKEN_COMMA, NULL)) {
+			ReportError(state, "Expected ,");
+			return 0;
+		}
 	}
-
 	if (IsAtEnd(state)) {
 		ReportError(state, "Unexpected EOF");
 		return 0;
 	}
-	Advance(state);
 
+	Advance(state);
 	return id;
 }
 
@@ -135,20 +143,23 @@ u32 ScriptDeclaration(ParserState *state, u32 last)
 	state->ast[id].data.script.idLength = idToken.length;
 	state->ast[id].data.script.id = idToken.lexeme;
 
+	if (!Match(state, 0, LEXER_TOKEN_LBRACE, NULL)) {
+		ReportError(state, "Expected {");
+		return 0;
+	}
 	u32 statementId = 0;
-	while (!IsAtEnd(state) && !IsKeyword(state, 0, GFXC_END_BLOCK_KEYWORD)) {
+	while (!IsAtEnd(state) && !Check(state, 0, LEXER_TOKEN_RBRACE, NULL)) {
 		u32 s = Statement(state, statementId);
 		if (statementId == 0)
 			state->ast[id].data.script.stat = s;
 		statementId = s;
 	}
-
 	if (IsAtEnd(state)) {
 		ReportError(state, "Unexpected EOF");
 		return 0;
 	}
-	Advance(state);
 
+	Advance(state);
 	return id;
 }
 
@@ -164,13 +175,13 @@ u32 Attr(ParserState *state, u32 last)
 	state->ast[id].data.attr.idLength = idToken.length;
 	state->ast[id].data.attr.id = idToken.lexeme;
 
-	u32 valueId = Value(state, 0);
-	if (valueId == 0) {
+	if (!Match(state, 0, LEXER_TOKEN_COLON, &idToken)) {
+		ReportError(state, "Expected :");
 		return 0;
 	}
 
-	if (!Match(state, 0, LEXER_TOKEN_SEMICOLON, &idToken)) {
-		ReportError(state, "Expected ;");
+	u32 valueId = Value(state, 0);
+	if (valueId == 0) {
 		return 0;
 	}
 
