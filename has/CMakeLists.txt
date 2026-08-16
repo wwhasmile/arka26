@@ -29,8 +29,11 @@ elseif(
   (CMAKE_C_COMPILER_ID STREQUAL "GNU") OR
   (CMAKE_C_COMPILER_ID MATCHES "Clang")
 )
-  target_compile_options(has PRIVATE -Wall -Wextra -Wpedantic -Werror
-    "$<$<CONFIG:Debug>:-g3>" "$<$<CONFIG:Debug>:-fno-omit-frame-pointer>")
+  target_compile_options(has PRIVATE
+    -Wall -Wextra -Wpedantic -Werror
+    -fno-strict-aliasing
+    "$<$<CONFIG:Debug>:-g3>" "$<$<CONFIG:Debug>:-fno-omit-frame-pointer>"
+  )
 endif()
 
 add_library(Arka26::Has ALIAS has)

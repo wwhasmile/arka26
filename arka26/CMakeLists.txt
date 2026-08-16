@@ -23,7 +23,9 @@ elseif(
   (CMAKE_C_COMPILER_ID STREQUAL "GNU") OR
   (CMAKE_C_COMPILER_ID MATCHES "Clang")
 )
-  target_compile_options(arka26 PRIVATE -Wall -Wextra -Wpedantic -Werror
+  target_compile_options(gfxc PRIVATE
+    -Wall -Wextra -Wpedantic -Werror
+    -fno-strict-aliasing
     "$<$<CONFIG:Debug>:-g3>" "$<$<CONFIG:Debug>:-fno-omit-frame-pointer>"
   )
 endif()
