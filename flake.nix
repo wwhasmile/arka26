@@ -15,11 +15,11 @@
         packages = with pkgs; [
           # To open a web server for emscripten build
           python3
-          # To generate compiler_commands.json
-          compiledb
           # Syntax highlighting, formatter, and linter
           clang-tools
           # Build tools
+          cmake
+          neocmakelsp
           emscripten
           # Debug tools
           gdb
