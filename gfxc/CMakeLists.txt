@@ -20,17 +20,19 @@ set_target_properties(gfxc PROPERTIES
   C_STANDARD_REQUIRED ON
   C_EXTENSIONS OFF
 )
-if (
+if(
   (CMAKE_C_COMPILER_ID STREQUAL "MSVC") OR
   (CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
 )
-  target_compile_options(has PRIVATE /W3 /WX)
-  target_compile_definitions(has PRIVATE _CRT_SECURE_NO_WARNINGS UNICODE)
+  target_compile_options(gfxc PRIVATE /W3 /WX)
+  target_compile_definitions(gfxc PRIVATE _CRT_SECURE_NO_WARNINGS UNICODE)
 elseif(
   (CMAKE_C_COMPILER_ID STREQUAL "GNU") OR
   (CMAKE_C_COMPILER_ID MATCHES "Clang")
 )
-  target_compile_options(has PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_compile_options(gfxc PRIVATE -Wall -Wextra -Wpedantic -Werror
+    "$<$<CONFIG:Debug>:-g3>" "$<$<CONFIG:Debug>:-fno-omit-frame-pointer>"
+  )
 endif()
 target_compile_definitions(gfxc PRIVATE
   "$<$<CONFIG:Debug>:VERSION=\"${PROJECT_VERSION}-debug\">"
