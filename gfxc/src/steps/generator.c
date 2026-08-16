@@ -264,8 +264,7 @@ u32 Value(GeneratorState *state, u32 idx, bool *isRegister)
 	switch (annotation->value.argt) {
 	case GFXC_TYPE_INT:
 		if (data.shared.type == GFXC_TYPE_HEX) {
-			i32 cvt = (i32)data.hex.value;
-			memcpy(&bytes, &cvt, sizeof(u32));
+			bytes = (u32)data.hex.value;
 			break;
 		}
 		if (data.shared.type == GFXC_TYPE_INT_REGISTER) {
@@ -287,8 +286,12 @@ u32 Value(GeneratorState *state, u32 idx, bool *isRegister)
 		break;
 	case GFXC_TYPE_FLOAT:
 		if (data.shared.type == GFXC_TYPE_INT) {
-			f32 cvt = (f32)data.intv.value;
-			memcpy(&bytes, &cvt, sizeof(u32));
+			union {
+				f32 f;
+				u32 b;
+			} cvt;
+			cvt.f = data.floatv.value;
+			bytes = cvt.b;
 			break;
 		}
 		if (data.shared.type == GFXC_TYPE_FLOAT_REGISTER) {
