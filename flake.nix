@@ -24,6 +24,32 @@
           # Debug tools
           gdb
           valgrind
+          # Dev libraries
+          alsa-lib
+          hidapi
+          ibus
+          jack2
+          libdecor
+          libthai
+          fribidi
+          libGL
+          libpulseaudio
+          libusb1
+          libX11
+          libXcursor
+          libXext
+          libxfixes
+          libxi
+          libxinerama
+          libxkbcommon
+          libxrandr
+          libxrender
+          libxscrnsaver
+          libxtst
+          pipewire
+          sndio
+          wayland
+          wayland-protocols
           # For editing flake
           nil
           nixd

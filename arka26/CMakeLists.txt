@@ -35,6 +35,6 @@ target_compile_definitions(arka26 PRIVATE
   "$<$<CONFIG:Debug>:ARKA26_DEBUG>"
   "$<$<CONFIG:Release>:ARKA26_RELEASE>"
 )
-target_link_libraries(arka26 PRIVATE Arka26::Has)
+target_link_libraries(arka26 PRIVATE Arka26::Has SDL3::SDL3)
 
 add_executable(Arka26::Arka26 ALIAS arka26)
