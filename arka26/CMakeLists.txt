@@ -1,7 +1,7 @@
-add_executable(arka26)
+add_executable(arka26 WIN32)
 target_sources(arka26
   PRIVATE
-      src/main.c
+      src/platform/platform_unix.c
   PRIVATE
     FILE_SET headers
     TYPE HEADERS

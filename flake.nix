@@ -48,8 +48,11 @@
           libxtst
           pipewire
           sndio
+          vulkan-loader
+          vulkan-headers
           wayland
           wayland-protocols
+          libxcb
           # For editing flake
           nil
           nixd

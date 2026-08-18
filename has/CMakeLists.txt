@@ -5,14 +5,10 @@ target_sources(has
     TYPE HEADERS
     BASE_DIRS
       src
-    FILES
-      src/defines.h
-      src/version.h
-      src/ds/stack.h
-      src/version.h
   PRIVATE
     src/lexer.c
     src/ds/stack.c
+    src/math/math.c
 )
 target_compile_features(has PUBLIC c_std_99)
 set_target_properties(has PROPERTIES
