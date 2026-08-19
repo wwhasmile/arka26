@@ -75,10 +75,13 @@ inline f32 float2_Length(float2 x)
 
 inline float2 float2_Normalized(float2 x)
 {
-	f32 length = float2_Length(x);
-	x.x /= length;
-	x.y /= length;
-	return x;
+	f32 length = float2_LengthSq(x);
+	float2 result = { 0 };
+	if (length < MATH_EPSILON * MATH_EPSILON)
+		return result;
+	result.x = x.x / length;
+	result.y = x.y / length;
+	return result;
 }
 
 inline f32 float2_DistanceSq(float2 a, float2 b)
