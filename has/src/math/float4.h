@@ -2,6 +2,8 @@
 #define HAS_FLOAT4_H
 
 #include <math/math.h>
+#include <math/float2.h>
+#include <math/float3.h>
 
 typedef struct {
 	f32 x;
