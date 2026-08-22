@@ -923,10 +923,10 @@ static inline float4x4 float4x4_Rotation(float4 q)
 	result.columns.i.z = xz2 - wy2;
 	result.columns.j.x = xy2 - wz2;
 	result.columns.j.y = 1.0f - xx2 - zz2;
-	result.columns.j.z = yz2 + wz2;
+	result.columns.j.z = yz2 + wx2;
 	result.columns.k.x = xz2 + wy2;
-	result.columns.k.z = 1.0f - xx2 - yy2;
 	result.columns.k.y = yz2 - wx2;
+	result.columns.k.z = 1.0f - xx2 - yy2;
 	return result;
 }
 
