@@ -8,9 +8,6 @@ target_sources(has
   PRIVATE
     src/lexer.c
     src/ds/stack.c
-    src/math/math.c
-    src/math/float2.c
-    src/math/float3.c
 )
 target_compile_features(has PUBLIC c_std_99)
 set_target_properties(has PROPERTIES
