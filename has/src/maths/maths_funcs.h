@@ -91,7 +91,8 @@ static inline float3 float3_Normalized(float3 x);
 static inline f32 float3_DistanceSq(float3 a, float3 b);
 static inline f32 float3_Distance(float3 a, float3 b);
 
-static inline float3 float3_Rotated(float3 x, float3 axis, f32 t);
+static inline float3 float3_Rotated(float3 x, float4 q);
+static inline float3 float3_RotatedAxisAngle(float3 x, float3 axis, f32 t);
 static inline f32 float3_AngleTo(float3 a, float3 b);
 static inline float3 float3_Reflected(float3 x, float3 n);
 
@@ -106,12 +107,16 @@ static inline bool float3_IsNearlyZero(float3 a);
 static inline float4 float4_FromFloat2(float2 x, f32 z, f32 w);
 static inline float4 float4_FromFloat3(float3 x, f32 w);
 
+static inline float4 float4_Identity(void);
+static inline float4 float4_AxisAngle(float3 axis, f32 t);
+
 static inline float4 float4_Add(float4 a, float4 b);
 static inline float4 float4_Sub(float4 a, float4 b);
 static inline float4 float4_Mul(float4 a, f32 b);
 static inline float4 float4_MulFloat4x4(float4 a, float4x4 b);
 static inline float4 float4_Div(float4 a, f32 b);
 static inline f32 float4_Dot(float4 a, float4 b);
+static inline float4 float4_Combine(float4 a, float4 b);
 
 static inline f32 float4_LengthSq(float4 x);
 static inline f32 float4_Length(float4 x);
@@ -124,6 +129,9 @@ static inline float4 float4_Max(float4 a, float4 b);
 static inline float4 float4_Clamp(float4 x, float4 min, float4 max);
 static inline float4 float4_Lerp(float4 a, float4 b, f32 t);
 
+static inline float4 float4_Conjugate(float4 x);
+static inline float4 float4_Inverse(float4 x);
+
 static inline bool float4_IsNearlyEqual(float4 a, float4 b);
 static inline bool float4_IsNearlyZero(float4 a);
 
@@ -132,7 +140,8 @@ static inline float4x4 float4x4_Orthographic(f32 right, f32 left, f32 top, f32 b
 static inline float4x4 float4x4_Perspective(f32 fov, f32 aspect, f32 near, f32 far);
 static inline float4x4 float4x4_LookAt(float3 eyes, float3 target, float3 up);
 static inline float4x4 float4x4_Translation(float3 to);
-static inline float4x4 float4x4_Rotation(float3 axis, f32 t);
+static inline float4x4 float4x4_Rotation(float4 q);
+static inline float4x4 float4x4_RotationAxisAngle(float3 axis, f32 t);
 static inline float4x4 float4x4_Scale(float3 scale);
 
 static inline float4x4 float4x4_Add(float4x4 a, float4x4 b);
@@ -559,7 +568,21 @@ static inline f32 float3_Distance(float3 a, float3 b)
 	return Math_Sqrt(float3_DistanceSq(a, b));
 }
 
-static inline float3 float3_Rotated(float3 x, float3 axis, f32 t)
+static inline float3 float3_Rotated(float3 x, float4 q)
+{
+	float3 u = { q.x, q.y, q.z };
+	float3 ux = float3_Cross(u, x);
+	float3 uux = float3_Cross(u, ux);
+
+	float3 result = {
+		x.x + 2.0f * (q.w * ux.x + uux.x),
+		x.y + 2.0f * (q.w * ux.y + uux.y),
+		x.z + 2.0f * (q.w * ux.z + uux.z),
+	};
+	return result;
+}
+
+static inline float3 float3_RotatedAxisAngle(float3 x, float3 axis, f32 t)
 {
 	f32 tCos = Math_Cos(t);
 	f32 tSin = Math_Sin(t);
@@ -642,6 +665,24 @@ static inline float4 float4_FromFloat3(float3 x, f32 w)
 	return result;
 }
 
+static inline float4 float4_Identity(void)
+{
+	float4 result = { 0.0f, 0.0f, 0.0f, 1.0f };
+	return result;
+}
+
+static inline float4 float4_AxisAngle(float3 axis, f32 t)
+{
+	f32 tSin = Math_Sin(t * 0.5f);
+
+	float4 result = float4_Identity();
+	result.x = axis.x * tSin;
+	result.y = axis.y * tSin;
+	result.z = axis.z * tSin;
+	result.w = Math_Cos(t * 0.5f);
+	return result;
+}
+
 static inline float4 float4_Add(float4 a, float4 b)
 {
 	float4 result = { a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w };
@@ -679,6 +720,20 @@ static inline float4 float4_Div(float4 a, f32 b)
 static inline f32 float4_Dot(float4 a, float4 b)
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+
+static inline float4 float4_Combine(float4 a, float4 b)
+{
+	float3 xyzA = { a.x, a.y, a.z };
+	float3 xyzB = { b.x, b.y, b.z };
+	float3 ab = float3_Mul(xyzA, b.w);
+	float3 ba = float3_Mul(xyzB, a.w);
+	float3 im = float3_Add(float3_Add(ab, ba), float3_Cross(xyzA, xyzB));
+	float4 result = {
+		im.x, im.y, im.z,
+		a.w * b.w - (a.x * b.x + a.y * b.y + a.z * b.z)
+	};
+	return result;
 }
 
 static inline f32 float4_LengthSq(float4 x)
@@ -751,6 +806,18 @@ static inline float4 float4_Clamp(float4 x, float4 min, float4 max)
 static inline float4 float4_Lerp(float4 a, float4 b, f32 t)
 {
 	return float4_Add(a, float4_Mul(float4_Sub(b, a), t));
+}
+
+static inline float4 float4_Conjugate(float4 x)
+{
+	float4 result = { -x.x, -x.y, -x.z, x.w };
+	return result;
+}
+
+static inline float4 float4_Inverse(float4 x)
+{
+	float4 result = float4_Div(float4_Conjugate(x), float4_LengthSq(x));
+	return result;
 }
 
 static inline bool float4_IsNearlyEqual(float4 a, float4 b)
@@ -837,7 +904,33 @@ static inline float4x4 float4x4_Translation(float3 to)
 	return result;
 }
 
-static inline float4x4 float4x4_Rotation(float3 axis, f32 t)
+static inline float4x4 float4x4_Rotation(float4 q)
+{
+	f32 xx2 = q.x * q.x * 2.0f;
+	f32 yy2 = q.y * q.y * 2.0f;
+	f32 zz2 = q.z * q.z * 2.0f;
+
+	f32 xy2 = q.x * q.y * 2.0f;
+	f32 xz2 = q.x * q.z * 2.0f;
+	f32 yz2 = q.y * q.z * 2.0f;
+	f32 wx2 = q.w * q.x * 2.0f;
+	f32 wy2 = q.w * q.y * 2.0f;
+	f32 wz2 = q.w * q.z * 2.0f;
+
+	float4x4 result = float4x4_Identity(1.0f);
+	result.columns.i.x = 1.0f - yy2 - zz2;
+	result.columns.i.y = xy2 + wz2;
+	result.columns.i.z = xz2 - wy2;
+	result.columns.j.x = xy2 - wz2;
+	result.columns.j.y = 1.0f - xx2 - zz2;
+	result.columns.j.z = yz2 + wz2;
+	result.columns.k.x = xz2 + wy2;
+	result.columns.k.z = 1.0f - xx2 - yy2;
+	result.columns.k.y = yz2 - wx2;
+	return result;
+}
+
+static inline float4x4 float4x4_RotationAxisAngle(float3 axis, f32 t)
 {
 	f32 tCos = Math_Cos(t);
 	f32 tSin = Math_Sin(t);
