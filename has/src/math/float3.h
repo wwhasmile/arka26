@@ -128,9 +128,9 @@ inline float3 float3_Reflected(float3 x, float3 n)
 inline float3 float3_Min(float3 a, float3 b)
 {
 	float3 result = {
-		Math_Min(a.x, b.x),
-		Math_Min(a.y, b.y),
-		Math_Min(a.z, b.z)
+		Math_Fmin(a.x, b.x),
+		Math_Fmin(a.y, b.y),
+		Math_Fmin(a.z, b.z)
 	};
 	return result;
 }
@@ -138,9 +138,9 @@ inline float3 float3_Min(float3 a, float3 b)
 inline float3 float3_Max(float3 a, float3 b)
 {
 	float3 result = {
-		Math_Max(a.x, b.x),
-		Math_Max(a.y, b.y),
-		Math_Max(a.z, b.z)
+		Math_Fmax(a.x, b.x),
+		Math_Fmax(a.y, b.y),
+		Math_Fmax(a.z, b.z)
 	};
 	return result;
 }
@@ -148,9 +148,9 @@ inline float3 float3_Max(float3 a, float3 b)
 inline float3 float3_Clamp(float3 x, float3 min, float3 max)
 {
 	float3 result = {
-		Math_Clamp(x.x, min.x, max.x),
-		Math_Clamp(x.y, min.y, max.y),
-		Math_Clamp(x.z, min.z, max.z)
+		Math_Fclamp(x.x, min.x, max.x),
+		Math_Fclamp(x.y, min.y, max.y),
+		Math_Fclamp(x.z, min.z, max.z)
 	};
 	return result;
 }
