@@ -31,4 +31,9 @@ elseif(
   )
 endif()
 
+find_library(MATH_LIBRARY m)
+if (MATH_LIBRARY)
+  target_link_libraries(has PRIVATE ${MATH_LIBRARY})
+endif()
+
 add_library(Arka26::Has ALIAS has)
