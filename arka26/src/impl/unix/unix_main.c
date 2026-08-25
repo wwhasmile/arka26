@@ -6,11 +6,20 @@
 
 int main(void)
 {
+    if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
+        SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+
     GfxEngine engine = { 0 };
-    if (!Gfx_Setup(&engine, GFX_BACKEND_GL33))
+    if (!Gfx_Setup(&engine, GFX_BACKEND_GL33)) {
         SDL_Log("Lol why");
-    if (!Gfx_Init(&engine, "Arka26", 1280, 960, GFX_VSYNC))
+        return 2;
+    }
+    if (!Gfx_Init(&engine, "Arka26", 1280, 960, GFX_VSYNC)) {
         SDL_Log("Fail");
+        return 3;
+    }
 
     SDL_Event ev;
     while (true) {

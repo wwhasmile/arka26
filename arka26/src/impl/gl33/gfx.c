@@ -18,19 +18,13 @@ bool GL33_Gfx_Setup(GfxEngine *engine)
 
 bool GL33_Gfx_Init(GfxEngine *engine, const char *title, u32 width, u32 height, GfxFlags flags)
 {
-    if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
-        return false;
-    }
-
     GfxGL33State result = { 0 };
     SDL_WindowFlags windowFlags = SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL;
     if (flags & GFX_FULLSCREEN)
         windowFlags |= SDL_WINDOW_FULLSCREEN;
     result.window = SDL_CreateWindow(title, width, height, windowFlags);
-    if (result.window == NULL) {
-        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    if (result.window == NULL)
         return false;
-    }
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -42,20 +36,11 @@ bool GL33_Gfx_Init(GfxEngine *engine, const char *title, u32 width, u32 height, 
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     result.glc = SDL_GL_CreateContext(result.window);
-    if (result.glc == NULL) {
-        SDL_DestroyWindow(result.window);
-        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    if (result.glc == NULL)
         return false;
-    }
     SDL_GL_MakeCurrent(result.window, result.glc);
-
-    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-        SDL_GL_DestroyContext(result.glc);
-        SDL_DestroyWindow(result.window);
-        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
         return false;
-    }
-
     SDL_ShowWindow(result.window);
 
     GfxGL33State *state = malloc(sizeof(GfxGL33State));
