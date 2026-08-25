@@ -1,7 +1,9 @@
 add_executable(arka26 WIN32)
 target_sources(arka26
   PRIVATE
-      src/platform/platform_unix.c
+    src/gfx/gfx.c
+    src/impl/gl33/gfx.c
+    src/impl/unix/unix_main.c
   PRIVATE
     FILE_SET headers
     TYPE HEADERS
@@ -18,7 +20,7 @@ if(
   (CMAKE_C_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
 )
   target_compile_options(arka26 PRIVATE /W3 /WX)
-  target_compile_definitions(has PRIVATE _CRT_SECURE_NO_WARNINGS UNICODE)
+  target_compile_definitions(arka26 PRIVATE _CRT_SECURE_NO_WARNINGS UNICODE)
 elseif(
   (CMAKE_C_COMPILER_ID STREQUAL "GNU") OR
   (CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -35,6 +37,6 @@ target_compile_definitions(arka26 PRIVATE
   "$<$<CONFIG:Debug>:ARKA26_DEBUG>"
   "$<$<CONFIG:Release>:ARKA26_RELEASE>"
 )
-target_link_libraries(arka26 PRIVATE Arka26::Has SDL3::SDL3)
+target_link_libraries(arka26 PRIVATE Arka26::Has SDL3::SDL3 glad)
 
 add_executable(Arka26::Arka26 ALIAS arka26)
