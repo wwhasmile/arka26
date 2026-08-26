@@ -1,13 +1,15 @@
 #if defined(__unix__) && !defined(_EMSCRIPTEN_)
 
 #include <gfx/gfx.h>
+#include <core/platform.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
 int main(void)
 {
-    if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) {
-        SDL_Log("Failed to initialize SDL: %s", SDL_GetError());
+    PlatformState platform = { 0 };
+    if (!Platform_Init(&platform)) {
+        SDL_Log("Failed to initialize: %s", SDL_GetError());
         return 1;
     }
 
@@ -21,10 +23,10 @@ int main(void)
         return 3;
     }
 
-    SDL_Event ev;
+    PlatformEvent ev;
     while (true) {
-        while (SDL_PollEvent(&ev)) {
-            if (ev.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
+        while (Platform_PollEvent(&platform, &ev)) {
+            if (ev.shared.type == PLATFORM_EVENT_CLOSE)
                 return 0;
         }
 

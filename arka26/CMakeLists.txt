@@ -2,7 +2,8 @@ add_executable(arka26 WIN32)
 target_sources(arka26
   PRIVATE
     src/gfx/gfx.c
-    src/impl/gl33/gfx.c
+    src/impl/gl33/gl33_gfx.c
+    src/impl/sdl/sdl_platform.c
     src/impl/unix/unix_main.c
   PRIVATE
     FILE_SET headers

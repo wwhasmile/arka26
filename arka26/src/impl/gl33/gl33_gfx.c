@@ -1,4 +1,4 @@
-#include "gfx.h"
+#include "gl33_gfx.h"
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
 #include <stdlib.h>

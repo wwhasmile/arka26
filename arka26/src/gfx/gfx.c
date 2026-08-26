@@ -1,6 +1,6 @@
 #include "gfx.h"
 
-#include <impl/gl33/gfx.h>
+#include <impl/gl33/gl33_gfx.h>
 
 bool Gfx_Setup(GfxEngine *engine, GfxBackend preferredBackend)
 {
