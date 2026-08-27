@@ -128,6 +128,7 @@ static inline float4 float4_Min(float4 a, float4 b);
 static inline float4 float4_Max(float4 a, float4 b);
 static inline float4 float4_Clamp(float4 x, float4 min, float4 max);
 static inline float4 float4_Lerp(float4 a, float4 b, f32 t);
+static inline float4 float4_Slerp(float4 a, float4 b, f32 t);
 
 static inline float4 float4_Conjugate(float4 x);
 static inline float4 float4_Inverse(float4 x);
@@ -806,6 +807,20 @@ static inline float4 float4_Clamp(float4 x, float4 min, float4 max)
 static inline float4 float4_Lerp(float4 a, float4 b, f32 t)
 {
 	return float4_Add(a, float4_Mul(float4_Sub(b, a), t));
+}
+
+static inline float4 float4_Slerp(float4 a, float4 b, f32 t)
+{
+	f32 dot = float4_Dot(a, b);
+	if (dot < 0.0f) {
+		b = float4_Inverse(b);
+		dot = float4_Dot(a, b);
+	}
+	f32 th = Math_Acos(dot);
+	f32 thSinMul = 1.0f / Math_Sin(th);
+	f32 fac0 = Math_Sin((1.0f - t) * th) * thSinMul;
+	f32 fac1 = Math_Sin(t * th) * thSinMul;
+	return float4_Add(float4_Mul(a, fac0), float4_Mul(b, fac1));
 }
 
 static inline float4 float4_Conjugate(float4 x)
