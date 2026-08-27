@@ -56,6 +56,7 @@ float3 float3Tweener_Update(float3Tweener *tweener, f32 delta);
 
 void float4Tweener_Start(float4Tweener *tweener, float4 a, float4 b, f32 duration, Interpolation interp);
 float4 float4Tweener_Update(float4Tweener *tweener, f32 delta);
+float4 float4Tweener_SlerpUpdate(float4Tweener *tweener, f32 delta);
 
 void Color8Tweener_Start(Color8Tweener *tweener, Color8 a, Color8 b, f32 duration, Interpolation interp);
 Color8 Color8Tweener_Update(Color8Tweener *tweener, f32 delta);

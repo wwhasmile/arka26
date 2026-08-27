@@ -52,6 +52,12 @@ float4 float4Tweener_Update(float4Tweener *tweener, f32 delta)
     return float4_Lerp(tweener->a, tweener->b, t);
 }
 
+float4 float4Tweener_SlerpUpdate(float4Tweener *tweener, f32 delta)
+{
+    f32 t = TweenerState_Update((TweenerState*)tweener, delta);
+    return float4_Slerp(tweener->a, tweener->b, t);
+}
+
 void Color8Tweener_Start(Color8Tweener *tweener, Color8 a, Color8 b, f32 duration, Interpolation interp)
 {
     tweener->a = a;
