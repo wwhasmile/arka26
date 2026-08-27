@@ -7,6 +7,7 @@ target_sources(has
       src
   PRIVATE
     src/lexer.c
+    src/util/tweener.c
     src/ds/stack.c
 )
 target_compile_features(has PUBLIC c_std_99)
