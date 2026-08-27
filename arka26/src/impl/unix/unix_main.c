@@ -1,6 +1,6 @@
 #if defined(__unix__) && !defined(_EMSCRIPTEN_)
 
-#include <gfx/gfx.h>
+#include <gfx/gfx_driver.h>
 #include <core/platform.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -13,12 +13,12 @@ int main(void)
         return 1;
     }
 
-    GfxEngine engine = { 0 };
-    if (!Gfx_Setup(&engine, GFX_BACKEND_GL33)) {
+    GfxDriver driver = { 0 };
+    if (!GfxDriver_Setup(&driver, GFX_BACKEND_GL33)) {
         SDL_Log("Lol why");
         return 2;
     }
-    if (!Gfx_Init(&engine, "Arka26", 1280, 960, GFX_VSYNC)) {
+    if (!GfxDriver_Init(&driver, "Arka26", 1280, 960, GFX_VSYNC)) {
         SDL_Log("Fail");
         return 3;
     }
@@ -30,7 +30,7 @@ int main(void)
                 return 0;
         }
 
-        Gfx_Swap(&engine);
+        GfxDriver_Swap(&driver);
     }
 }
 

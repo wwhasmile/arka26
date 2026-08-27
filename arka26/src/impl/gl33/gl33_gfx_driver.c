@@ -1,4 +1,4 @@
-#include "gl33_gfx.h"
+#include "gl33_gfx_driver.h"
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
 #include <stdlib.h>
@@ -8,15 +8,15 @@ typedef struct {
     SDL_GLContext glc;
 } GfxGL33State;
 
-bool GL33_Gfx_Setup(GfxEngine *engine)
+bool GL33_GfxDriver_Setup(GfxDriver *engine)
 {
     engine->backend = GFX_BACKEND_GL33;
-    engine->init = GL33_Gfx_Init;
-    engine->swap = GL33_Gfx_Swap;
+    engine->init = GL33_GfxDriver_Init;
+    engine->swap = GL33_GfxDriver_Swap;
     return true;
 }
 
-bool GL33_Gfx_Init(GfxEngine *engine, const char *title, u32 width, u32 height, GfxFlags flags)
+bool GL33_GfxDriver_Init(GfxDriver *engine, const char *title, u32 width, u32 height, GfxFlags flags)
 {
     GfxGL33State result = { 0 };
     SDL_WindowFlags windowFlags = SDL_WINDOW_HIDDEN | SDL_WINDOW_OPENGL;
@@ -52,7 +52,7 @@ bool GL33_Gfx_Init(GfxEngine *engine, const char *title, u32 width, u32 height, 
     return true;
 }
 
-void GL33_Gfx_Swap(GfxEngine *engine)
+void GL33_GfxDriver_Swap(GfxDriver *engine)
 {
     GfxGL33State *state = engine->internal;
     SDL_GL_SwapWindow(state->window);

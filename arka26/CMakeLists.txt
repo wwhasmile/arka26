@@ -1,8 +1,8 @@
 add_executable(arka26 WIN32)
 target_sources(arka26
   PRIVATE
-    src/gfx/gfx.c
-    src/impl/gl33/gl33_gfx.c
+    src/gfx/gfx_driver.c
+    src/impl/gl33/gl33_gfx_driver.c
     src/impl/sdl/sdl_platform.c
     src/impl/unix/unix_main.c
   PRIVATE
