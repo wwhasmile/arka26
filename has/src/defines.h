@@ -2,6 +2,7 @@
 #define HAS_DEFINES_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 
 typedef int8_t i8;
@@ -12,11 +13,10 @@ typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
+typedef size_t usize;
 
 typedef float f32;
 typedef double f64;
-
-#define NULL ((void *)0)
 
 #define I8_MIN -128
 #define I8_MAX 127
