@@ -1,7 +1,7 @@
 #include <gfxc.h>
 
 #include <ds/stack.h>
-#include <lexer.h>
+#include <util/lexer.h>
 
 #include <stdlib.h>
 #include <string.h>

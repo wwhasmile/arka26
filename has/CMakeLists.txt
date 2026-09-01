@@ -6,9 +6,9 @@ target_sources(has
     BASE_DIRS
       src
   PRIVATE
-    src/lexer.c
-    src/util/tweener.c
     src/ds/stack.c
+    src/util/lexer.c
+    src/util/tweener.c
 )
 target_compile_features(has PUBLIC c_std_99)
 set_target_properties(has PROPERTIES

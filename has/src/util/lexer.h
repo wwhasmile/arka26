@@ -1,5 +1,5 @@
-#ifndef HAS_LEXER_H
-#define HAS_LEXER_H
+#ifndef HAS_UTIL_LEXER_H
+#define HAS_UTIL_LEXER_H
 
 #include <defines.h>
 
@@ -56,4 +56,4 @@ void Lexer_Initialize(Lexer *lexer, const char *src);
 
 LexerToken Lexer_Next(Lexer *lexer);
 
-#endif // HAS_LEXER_H
+#endif // HAS_UTIL_LEXER_H
