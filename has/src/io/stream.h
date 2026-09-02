@@ -28,14 +28,18 @@ typedef struct {
 	i32 (*seek)(Stream *stream, i32 to, StreamWhence whence);
 	i32 (*tell)(Stream *stream);
 	i32 (*size)(Stream *stream);
-	bool (*close)(Stream *stream);
+	i32 (*flush)(Stream *stream);
+	i32 (*close)(Stream *stream);
 } StreamInterface;
 
 static inline i32 Stream_Read(Stream *stream, void *buffer, u32 count);
 static inline i32 Stream_Write(Stream *stream, const void *buffer, u32 count);
+
 static inline i32 Stream_Seek(Stream *stream, i32 to, StreamWhence whence);
 static inline i32 Stream_Tell(Stream *stream);
-static inline bool Stream_Close(Stream *stream);
+
+static inline i32 Stream_Flush(Stream *stream);
+static inline i32 Stream_Close(Stream *stream);
 
 static inline i32 Stream_Read(Stream *stream, void *buffer, u32 count)
 {
@@ -69,7 +73,15 @@ static inline i32 Stream_Tell(Stream *stream)
 	return interface->tell(stream);
 }
 
-static inline bool Stream_Close(Stream *stream)
+static inline i32 Stream_Flush(Stream *stream)
+{
+	StreamInterface *interface = (StreamInterface*)stream;
+	if (interface->flush == NULL)
+		return -1;
+	return interface->flush(stream);
+}
+
+static inline i32 Stream_Close(Stream *stream)
 {
 	StreamInterface *interface = (StreamInterface*)stream;
 	if (interface->close == NULL)
