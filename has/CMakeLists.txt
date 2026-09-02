@@ -7,6 +7,7 @@ target_sources(has
       src
   PRIVATE
     src/ds/stack.c
+    src/io/file.c
     src/util/lexer.c
     src/util/tweener.c
 )
