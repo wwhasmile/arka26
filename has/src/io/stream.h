@@ -37,6 +37,7 @@ static inline i32 Stream_Write(Stream *stream, const void *buffer, u32 count);
 
 static inline i32 Stream_Seek(Stream *stream, i32 to, StreamWhence whence);
 static inline i32 Stream_Tell(Stream *stream);
+static inline i32 Stream_Size(Stream *stream);
 
 static inline i32 Stream_Flush(Stream *stream);
 static inline i32 Stream_Close(Stream *stream);
@@ -71,6 +72,14 @@ static inline i32 Stream_Tell(Stream *stream)
 	if (interface->tell == NULL)
 		return -1;
 	return interface->tell(stream);
+}
+
+static inline i32 Stream_Size(Stream *stream)
+{
+	StreamInterface *interface = (StreamInterface*)stream;
+	if (interface->size == NULL)
+		return -1;
+	return interface->size(stream);
 }
 
 static inline i32 Stream_Flush(Stream *stream)
