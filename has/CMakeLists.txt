@@ -10,6 +10,7 @@ target_sources(has
     src/io/file.c
     src/util/lexer.c
     src/util/tweener.c
+    src/sys/sys_unix.c
 )
 target_compile_features(has PUBLIC c_std_99)
 set_target_properties(has PROPERTIES

@@ -3,6 +3,8 @@
 
 #include "stream.h"
 
+bool File_Exists(const char *filename);
+
 Stream *File_Open(const char *filename, StreamMode mode);
 
 i32 File_Read(Stream *stream, void *buffer, u32 count);
