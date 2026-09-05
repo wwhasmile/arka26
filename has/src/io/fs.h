@@ -9,13 +9,13 @@ typedef struct {
 	bool (*exists)(Fs *fs, const char *file);
 	Stream *(*open)(Fs *fs, const char *file, StreamMode mode);
 	i32 (*fileSize)(Fs *fs, const char *file);
-	bool (*close)(Fs *fs);
+	i32 (*release)(Fs *fs);
 } FsInterface;
 
 static inline bool Fs_Exists(Fs *fs, const char *file);
 static inline Stream *Fs_Open(Fs *fs, const char *file, StreamMode mode);
 static inline i32 Fs_FileSize(Fs *fs, const char *file);
-static inline bool Fs_Close(Fs *fs);
+static inline i32 Fs_Release(Fs *fs);
 
 static inline bool Fs_Exists(Fs *fs, const char *file)
 {
@@ -35,10 +35,10 @@ static inline i32 Fs_FileSize(Fs *fs, const char *file)
 	return interface->fileSize(fs, file);
 }
 
-static inline bool Fs_Close(Fs *fs)
+static inline i32 Fs_Release(Fs *fs)
 {
 	FsInterface *interface = (FsInterface*)fs;
-	return interface->close(fs);
+	return interface->release(fs);
 }
 
 #endif // HAS_IO_FS_H
