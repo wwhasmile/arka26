@@ -3,6 +3,8 @@
 
 #include <defines.h>
 
+#define PATH_MAX 255
+
 u32 Path_Normalize(char *buffer, u32 n, const char *str, u32 strn);
 
 u32 Path_Join(char *buffer, u32 n, const char *a, u32 an, const char *b, u32 bn);
