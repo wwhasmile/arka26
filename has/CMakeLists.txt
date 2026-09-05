@@ -8,6 +8,7 @@ target_sources(has
   PRIVATE
     src/ds/stack.c
     src/io/file.c
+    src/str/path.c
     src/util/lexer.c
     src/util/tweener.c
     src/sys/sys_unix.c
